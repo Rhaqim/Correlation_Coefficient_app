@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, USIndexTicker, USStockTicker
 from decouple import config
 from requests_cache.session import CachedSession
-from .functions import percentagechange, stockAnalysis, get_client_ip, get_geolocation_for_ip, get_corresponding_currency
+from .functions import percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency
 import json
 
 requests = CachedSession()
@@ -76,7 +76,7 @@ def generalPurpose(request, against):
 
     for stuff in thelist:
         try:
-            stv2 = stockAnalysis(Base_Symbol=symbolValue, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=hloc)
+            stv2 = correlationcoefficient(Base_Symbol=symbolValue, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=hloc)
             col.append({stuff:stv2})
         except:
             pass
@@ -118,84 +118,6 @@ def stockV2(request):
 
     return Response(context)
 
-
-# #Homepage
-# @api_view(['GET'])
-# def Cryptohomepage(request):
-#     dropdown = CryptoTickers.objects.all()
-
-#     serializer = CryptoSerializer(dropdown, many=True)
-
-#     context = serializer.data
-
-#     return Response(context)
-
-
-# #Ajax
-# def getCryptoHLOC(request):
-
-#     if request.method == 'GET' and request.is_ajax():
-
-#         symbolValue = request.GET.get('indexSymbolValue')
-#         startDate = request.GET.get('startdate_aa')
-#         endDate = request.GET.get('enddate_aa')
-#         hloc = request.GET.get('ohlc_a')
-#         against = request.GET.get('against')
-
-#         datatrend, pctchange = percentagechange(symbol=symbolValue, startdate=startDate, enddate=endDate, hloc=hloc)
-
-#         pctchange.pop(0)
-
-#         checking = datatrend['values']
-
-#         datetimelist = []
-
-#         for i in checking:
-#             datetimelist.append(i['datetime'])
-        
-#         rateofchange = []
-
-#         for k in pctchange:
-#             rateofchange.append(k * -100)
-
-#         res = {}
-
-#         for key in datetimelist:
-#             for value in rateofchange:
-#                 res[key] = value
-#                 rateofchange.remove(value)
-#                 break 
-
-#         if against == 'stock':
-#             comp = USStockTicker.objects.all()[:20]
-#         elif against == 'crypto':
-#             comp = cryptolist.objects.all()[:20]
-#         elif against == 'index':
-#             comp = USIndexTicker.objects.all()[:20]
-#         elif against == 'forex':
-#             comp = ForexTickers.objects.all()[:20]
-
-#         # comp = CryptoTickers.objects.all()[:120]
-#         col = []
-#         thelist = []
-#         for item in comp:
-#             thelist.append(item.symbol)
-
-#         for stuff in thelist:
-#             try:
-#                 stv2 = stockAnalysis(Base_Symbol=symbolValue, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=hloc)
-#                 col.append({stuff:stv2})
-#             except:
-#                 pass
-
-#     context = {
-#         'DMT': datatrend['values'],
-#         'coefficient': col,
-#         'pctchange': res
-#     }
-
-#     return JsonResponse(context)
-
 #Homepage
 @api_view(['GET'])
 def forexhomepage(request):
@@ -229,147 +151,4 @@ def forexhomepage(request):
 
     return Response(context)
 
-# #Ajax
-# def getforexHLOC(request):
-
-#     if request.method == 'GET' and request.is_ajax():
-
-#         symbolValue = request.GET.get('forexSymbolValue')
-#         startDate = request.GET.get('startdate_aa')
-#         endDate = request.GET.get('enddate_aa')
-#         hloc = request.GET.get('ohlc_a')
-#         against = request.GET.get('against')
-
-#         # datatrend = dailymatchtrend(symbol=symbolValue)
-
-#         datatrend, pctchange = percentagechange(symbol=symbolValue, startdate=startDate, enddate=endDate, hloc=hloc)
-
-#         pctchange.pop(0)
-
-#         checking = datatrend['values']
-
-#         datetimelist = []
-
-#         for i in checking:
-#             datetimelist.append(i['datetime'])
-        
-#         rateofchange = []
-
-#         for k in pctchange:
-#             rateofchange.append(k * -100)
-
-#         res = {}
-
-#         for key in datetimelist:
-#             for value in rateofchange:
-#                 res[key] = value
-#                 rateofchange.remove(value)
-#                 break 
-
-#         if against == 'stock':
-#             comp = USStockTicker.objects.all()[:20]
-#         elif against == 'crypto':
-#             comp = cryptolist.objects.all()[:20]
-#         elif against == 'index':
-#             comp = USIndexTicker.objects.all()[:20]
-#         elif against == 'forex':
-#             comp = Forexlist.objects.all()[:20]
-
-#         # comp = CryptoTickers.objects.all()[:120]
-#         col = []
-#         thelist = []
-#         for item in comp:
-#             thelist.append(item.symbol)
-
-#         for stuff in thelist:
-#             try:
-#                 stv2 = stockAnalysis(Base_Symbol=symbolValue, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=hloc)
-#                 col.append({stuff:stv2})
-#             except:
-#                 pass
-
-#     context = {
-#         'DMT': datatrend['values'],
-#         'coefficient': col,
-#         'pctchange': res,
-#     }
-
-#     return JsonResponse(context)
-
-# # Create your views here.
-# def indexhomepage(request):
-#     dropdown = USIndexTicker.objects.all()
-
-#     context = {
-#         'indexdropdown':dropdown,
-#     }
-#     return render(request, "indices.html", context)
-
-
-# #Ajax
-# def getIndexHLOC(request):
-
-#     if request.method == 'GET' and request.is_ajax():
-
-#         symbolValue = request.GET.get('indexSymbolValue')
-#         startDate = request.GET.get('startdate_aa')
-#         endDate = request.GET.get('enddate_aa')
-#         hloc = request.GET.get('ohlc_a')
-#         against = request.GET.get('against')
-
-#         # datatrend = dailymatchtrend(symbol=symbolValue)
-
-#         datatrend, pctchange = percentagechange(symbol=symbolValue, startdate=startDate, enddate=endDate, hloc=hloc)
-
-#         pctchange.pop(0)
-
-#         checking = datatrend['values']
-
-#         datetimelist = []
-
-#         for i in checking:
-#             datetimelist.append(i['datetime'])
-        
-#         rateofchange = []
-
-#         for k in pctchange:
-#             rateofchange.append(k * -100)
-
-#         res = {}
-
-#         for key in datetimelist:
-#             for value in rateofchange:
-#                 res[key] = value
-#                 rateofchange.remove(value)
-#                 break 
-
-#         if against == 'stock':
-#             comp = USStockTicker.objects.all()[:20]
-#         elif against == 'crypto':
-#             comp = cryptolist.objects.all()[:20]
-#         elif against == 'index':
-#             comp = USIndexTicker.objects.all()[:20]
-#         elif against == 'forex':
-#             comp = ForexTickers.objects.all()[:20]
-
-#         # comp = CryptoTickers.objects.all()[:120]
-#         col = []
-#         thelist = []
-#         for item in comp:
-#             thelist.append(item.symbol)
-
-#         for stuff in thelist:
-#             try:
-#                 stv2 = stockAnalysis(Base_Symbol=symbolValue, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=hloc)
-#                 col.append({stuff:stv2})
-#             except:
-#                 pass
-
-#     context = {
-#         'DMT': datatrend['values'],
-#         'coefficient': col,
-#         'pctchange': res
-#     }
-
-#     return JsonResponse(context)
 
