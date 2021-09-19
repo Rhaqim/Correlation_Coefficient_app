@@ -1,5 +1,3 @@
-from logging import error
-from PBSTAPP import serializers
 from PBSTAPP.serializers import CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, IndexSerializer, SearchSerializer, StockSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view

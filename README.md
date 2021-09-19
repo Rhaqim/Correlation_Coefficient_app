@@ -1,6 +1,6 @@
-# Trend Analysis with Financial Data Correlation Coefficient
+# Trend Analysis with Financial Data
 The Django Rest Framework API application works with TweleData API to provide Correlation Coefficient as well as Percentage Change and and HLOC data for Trend Analysis.
-The App hopes to use Machine Learning to perform Trend Analysis. A frontend is coming soon after I learn react.
+The App hopes to use Machine Learning to perform Trend Analysis. A frontend is coming soon.
 
 # Daily Match Trend
 This section takes in a single ticker, Forex, Stock, Crypto, Index or Commodity and calculates the daily match trend with the HLOC, Percentage change/Actual Value Change and then returns the positive and negetive chang, along with the date and HLOC values.
