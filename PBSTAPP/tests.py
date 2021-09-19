@@ -84,27 +84,41 @@ def percentagechangev2(symbol, output, hloc):
 
     result = list(theseries.pct_change())
 
-    result.pop(0)
+    result.pop(0) 
 
     rateofchange = []
 
     for k in result:
         rateofchange.append(k * -100)
 
-    return data, rateofchange
+    datatime = []
+    for i in data2:
+        datatime.append(i['datetime'])
 
-data, pctchange = percentagechangev2('aapl', '7', 'close')
+        return datatime, rateofchange
 
-data = data.get('values')
+    # dmt = {}
 
-datatime = []
-for i in data:
-    datatime.append(i['datetime'])
+    # for i in datatime:
+    #     for l in rateofchange:
+    #         dmt[i] = l
+    #         rateofchange.remove(l)
+    #         break
 
-print(
-    pctchange[::-1]
-)
-time.sleep(2)
-print(
-    datatime
-)
+    # return dmt
+
+pctchange = 5
+
+data, dmt = percentagechangev2('aapl', '7', 'close')
+
+
+percentage_ = pctchange / 100
+
+discount = []
+
+for i in dmt:
+    discount.append(float(i) * float(percentage_))
+
+final = [x + y for x, y in zip(dmt, discount)]
+
+print(final)

@@ -17,4 +17,6 @@ urlpatterns = [
 
     path('v2/stock_country', views.Stock_country),
     path('v2/index_country', views.Index_country),
+
+    path('v2/DMT', views.DailyMatchTrend),
 ]

@@ -1,12 +1,10 @@
-from rest_framework import serializers
-from rest_framework.serializers import Serializer
 from PBSTAPP.serializers import CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, IndexSerializer, SearchSerializer, StockSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USIndexTicker, USStockTicker
 from decouple import config
 from requests_cache.session import CachedSession
-from .functions import percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency
+from .functions import percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2
 import json
 
 requests = CachedSession()
@@ -209,6 +207,29 @@ def DailyMatchTrend(request):
     serializer = Serializer_class(data=request.data)
     serializer.is_valid(raise_exception=True)
 
+    ticker = serializer.data.get('ticker')
     days = serializer.data.get('numberOfDays')
     graphValue = serializer.data.get('graphValue')
     pctChange = serializer.data.get('percentageChange')
+
+    date, pct = percentagechangev2(ticker, days, graphValue)
+
+    percentage_ = pctChange / 100
+
+    discount = []
+
+    for i in pct:
+        discount.append(float(i) * float(percentage_))
+
+    postiveChange = [x + y for x, y in zip(pct, discount)]
+
+    negativeChange = [x - y for x, y in zip(pct, discount)]
+
+    context = {
+        'positive': postiveChange,
+        'negative': negativeChange,
+        'date':date
+    }
+
+    return Response(context)
+

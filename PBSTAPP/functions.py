@@ -669,24 +669,28 @@ def tweleveDataTimeseriesApiCallv2(symbol, output):
 def percentagechangev2(symbol, output, hloc):
     import pandas as pd
 
-    data = tweleveDataTimeseriesApiCallv2(symbol=symbol, output=output)
+    data = tweleveDataTimeseriesApiCallv2(symbol=symbol, output=output) #external api with outputsize instead of date
 
     data2 = data.get('values')
 
     thelist = []
 
     for i in data2:
-        thelist.append(float(i[hloc]))
+        thelist.append(float(i[hloc])) #get values for HLOC
 
     theseries = pd.Series(thelist)
 
-    result = list(theseries.pct_change())
+    result = list(theseries.pct_change()) #pandas percentage change
 
-    result.pop(0)
+    result.pop(0) #remove nan value
 
     rateofchange = []
 
     for k in result:
-        rateofchange.append(k * -100)
+        rateofchange.append(k * -100) #per client request multiply by 100, result negative hence -100 multiplication
 
-    return data, rateofchange
+    # datatime = []
+    # for i in data2:
+    #     datatime.append(i['datetime']) #get datetime values
+
+    return data2, rateofchange
