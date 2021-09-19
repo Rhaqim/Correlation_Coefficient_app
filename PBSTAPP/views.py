@@ -58,21 +58,6 @@ def generalPurpose(request, against):
             rateofchange.remove(value)
             break 
 
-
-    # if against == 'usstock':
-    #     comp = USStockTicker.objects.all()[:20]
-    # elif against == 'crypto':
-    #     comp = CryptoTickers.objects.all()[:20]
-    # elif against == 'usindex':
-    #     comp = USIndexTicker.objects.all()[:20]
-    # elif against == 'forex':
-    #     comp = ForexTickers.objects.all()[:20]
-
-    # elif against == 'index':
-    #     comp = IndexTickers.objects.all()[:20]
-    # elif against == 'forex':
-    #     comp = StockTickers.objects.all()[:20]
-
     comp = against
 
     col = []
@@ -203,6 +188,8 @@ def Index_country(request):
 
     return Response(data)
 
+
+#DAILY MATCH TREND
 @api_view(['GET'])
 def DailyMatchTrend(request):
     Serializer_class = DailyMatchtrendSerializer
