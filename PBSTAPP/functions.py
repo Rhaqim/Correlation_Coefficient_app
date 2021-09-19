@@ -678,7 +678,7 @@ def percentagechangev2(symbol, output, hloc):
     for i in data2:
         thelist.append(float(i[hloc])) #get values for HLOC
 
-    theseries = pd.Series(thelist)
+    theseries = pd.Series(thelist[::-1])
 
     result = list(theseries.pct_change()) #pandas percentage change
 
@@ -687,7 +687,7 @@ def percentagechangev2(symbol, output, hloc):
     rateofchange = []
 
     for k in result:
-        rateofchange.append(k * -100) #per client request multiply by 100, result negative hence -100 multiplication
+        rateofchange.append(k * 100) #per client request multiply by 100, result negative hence -100 multiplication
 
     # datatime = []
     # for i in data2:

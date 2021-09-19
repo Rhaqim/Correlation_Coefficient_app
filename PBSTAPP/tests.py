@@ -80,7 +80,7 @@ def percentagechangev2(symbol, output, hloc):
     for i in data2:
         thelist.append(float(i[hloc]))
 
-    theseries = pd.Series(thelist)
+    theseries = pd.Series(thelist[::-1])
 
     result = list(theseries.pct_change())
 
@@ -89,13 +89,13 @@ def percentagechangev2(symbol, output, hloc):
     rateofchange = []
 
     for k in result:
-        rateofchange.append(k * -100)
+        rateofchange.append(k * 100)
 
     datatime = []
     for i in data2:
         datatime.append(i['datetime'])
 
-        return datatime, rateofchange
+        return datatime, rateofchange, result, theseries
 
     # dmt = {}
 
@@ -109,7 +109,7 @@ def percentagechangev2(symbol, output, hloc):
 
 pctchange = 5
 
-data, dmt = percentagechangev2('aapl', '7', 'close')
+data, dmt, b, d = percentagechangev2('aapl', '7', 'close')
 
 
 percentage_ = pctchange / 100
@@ -121,4 +121,20 @@ for i in dmt:
 
 final = [x + y for x, y in zip(dmt, discount)]
 
-print(final)
+# print(dmt)
+# print(percentage_)
+# print(discount)
+# print(final)
+
+a, b, c, d =percentagechangev2('aapl', '7', 'close')
+
+print('rate of change', b)
+print('pct change results', c)
+print('values', d)
+# import pandas as pd
+
+# check = [146.06000, 148.85001, 146.09000]
+
+# check2 = pd.Series(check)
+
+# print(check2.pct_change())

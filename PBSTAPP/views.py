@@ -226,8 +226,8 @@ def DailyMatchTrend(request):
     negativeChange = [x - y for x, y in zip(pct, discount)]
 
     context = {
-        'positive': postiveChange,
-        'negative': negativeChange,
+        'positive': postiveChange[::-1],
+        'negative': negativeChange[::-1],
         'date':date
     }
 
