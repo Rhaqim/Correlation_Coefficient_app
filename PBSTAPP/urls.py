@@ -14,4 +14,7 @@ urlpatterns = [
     path('v2/crypto', views.cryptoV2, name='crypto_v2'),
     path('v2/index', views.indexV2, name='index_v2'),
     path('v2/stock', views.stockV2, name='stock_v2'),
+
+    path('v2/stock_country', views.Stock_country),
+    path('v2/index_country', views.Index_country),
 ]

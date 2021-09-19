@@ -645,3 +645,48 @@ def percentagechange(symbol, startdate, enddate, hloc):
     result = list(theseries.pct_change())
 
     return data, result
+
+
+def tweleveDataTimeseriesApiCallv2(symbol, output):
+    try:
+
+        url = f'https://api.twelvedata.com/time_series?symbol={symbol}&interval=1day&outputsize={output}&apikey={token12}'
+
+        data = requests.get(url)
+
+        if data.status_code == 200:
+            # data = json.loads(data.content)
+            data = data.json()
+
+        else:
+            data = {'Error' : 'There was a problem with your provided ticker symbol. Please try again'}
+
+    except Exception:
+        data = {'Error':'There has been some connection error. Please try again later.'}
+
+    return data
+
+def percentagechangev2(symbol, output, hloc):
+    import pandas as pd
+
+    data = tweleveDataTimeseriesApiCallv2(symbol=symbol, output=output)
+
+    data2 = data.get('values')
+
+    thelist = []
+
+    for i in data2:
+        thelist.append(float(i[hloc]))
+
+    theseries = pd.Series(thelist)
+
+    result = list(theseries.pct_change())
+
+    result.pop(0)
+
+    rateofchange = []
+
+    for k in result:
+        rateofchange.append(k * -100)
+
+    return data, rateofchange
