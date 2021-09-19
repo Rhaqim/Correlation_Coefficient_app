@@ -1,10 +1,12 @@
+from logging import error
+from PBSTAPP import serializers
 from PBSTAPP.serializers import CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, IndexSerializer, SearchSerializer, StockSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USIndexTicker, USStockTicker
 from decouple import config
 from requests_cache.session import CachedSession
-from .functions import percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2
+from .functions import actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2
 import json
 
 requests = CachedSession()
@@ -211,24 +213,19 @@ def DailyMatchTrend(request):
     days = serializer.data.get('numberOfDays')
     graphValue = serializer.data.get('graphValue')
     pctChange = serializer.data.get('percentageChange')
+    change_choice = serializer.data.get('change_choice')
 
-    date, pct = percentagechangev2(ticker, days, graphValue)
-
-    percentage_ = pctChange / 100
-
-    discount = []
-
-    for i in pct:
-        discount.append(float(i) * float(percentage_))
-
-    postiveChange = [x + y for x, y in zip(pct, discount)]
-
-    negativeChange = [x - y for x, y in zip(pct, discount)]
+    if change_choice == 'actChange':
+        date, postiveChange, negativeChange = actualValuechangev2(ticker, days, graphValue, pctChange)
+    
+    if change_choice == 'pctChange':
+        date, postiveChange, negativeChange = percentagechangev2(ticker, days, graphValue, pctChange)
+    
 
     context = {
         'positive': postiveChange[::-1],
         'negative': negativeChange[::-1],
-        'date':date
+        'date':date,
     }
 
     return Response(context)

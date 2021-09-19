@@ -666,7 +666,7 @@ def tweleveDataTimeseriesApiCallv2(symbol, output):
 
     return data
 
-def percentagechangev2(symbol, output, hloc):
+def percentagechangev2(symbol, output, hloc, pctChange):
     import pandas as pd
 
     data = tweleveDataTimeseriesApiCallv2(symbol=symbol, output=output) #external api with outputsize instead of date
@@ -689,8 +689,43 @@ def percentagechangev2(symbol, output, hloc):
     for k in result:
         rateofchange.append(k * 100) #per client request multiply by 100, result negative hence -100 multiplication
 
-    # datatime = []
-    # for i in data2:
-    #     datatime.append(i['datetime']) #get datetime values
+    percentage_ = pctChange / 100
 
-    return data2, rateofchange
+    discount = []
+
+    for i in rateofchange:
+        discount.append(float(i) * float(percentage_))
+
+    postiveChange = [x + y for x, y in zip(rateofchange, discount)]
+
+    negativeChange = [x - y for x, y in zip(rateofchange, discount)]
+
+    return data2, postiveChange, negativeChange
+
+
+def actualValuechangev2(symbol, output, hloc, pctChange):
+
+    data = tweleveDataTimeseriesApiCallv2(symbol=symbol, output=output) #external api with outputsize instead of date
+
+    data2 = data.get('values')
+
+    thelist = []
+
+    for i in data2:
+        thelist.append(float(i[hloc])) #get values for HLOC
+
+    thelist = thelist[::-1]
+
+
+    percentage_ = pctChange / 100
+
+    discount = []
+
+    for i in thelist:
+        discount.append(float(i) * float(percentage_))
+
+    postiveChange = [x + y for x, y in zip(thelist, discount)]
+
+    negativeChange = [x - y for x, y in zip(thelist, discount)]
+
+    return data2, postiveChange, negativeChange

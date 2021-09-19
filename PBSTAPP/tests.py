@@ -97,15 +97,7 @@ def percentagechangev2(symbol, output, hloc):
 
         return datatime, rateofchange, result, theseries
 
-    # dmt = {}
 
-    # for i in datatime:
-    #     for l in rateofchange:
-    #         dmt[i] = l
-    #         rateofchange.remove(l)
-    #         break
-
-    # return dmt
 
 pctchange = 5
 
@@ -121,20 +113,45 @@ for i in dmt:
 
 final = [x + y for x, y in zip(dmt, discount)]
 
-# print(dmt)
-# print(percentage_)
-# print(discount)
-# print(final)
-
 a, b, c, d =percentagechangev2('aapl', '7', 'close')
 
 print('rate of change', b)
 print('pct change results', c)
 print('values', d)
-# import pandas as pd
 
-# check = [146.06000, 148.85001, 146.09000]
+def actualValuechangev2(symbol, output, hloc, pctChange):
 
-# check2 = pd.Series(check)
+    data = tweleveDataTimeseriesApiCallv2(symbol=symbol, output=output) #external api with outputsize instead of date
 
-# print(check2.pct_change())
+    data2 = data.get('values')
+
+    thelist = []
+
+    for i in data2:
+        thelist.append(float(i[hloc])) #get values for HLOC
+
+    thelist = thelist[::-1]
+
+
+    percentage_ = pctChange / 100
+
+    discount = []
+
+    for i in thelist:
+        discount.append(float(i) * float(percentage_))
+
+    postiveChange = [x + y for x, y in zip(thelist, discount)]
+
+    negativeChange = [x - y for x, y in zip(thelist, discount)]
+
+    return data2, postiveChange, negativeChange
+
+a, b, c =actualValuechangev2('aapl', '7', 'close', 5)
+
+print(
+    'positive', b 
+)
+
+print(
+    'negative', c 
+)

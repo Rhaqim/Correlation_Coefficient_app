@@ -32,7 +32,14 @@ class DailyMatchtrendSerializer(serializers.Serializer):
         ("open", "Open"),
         ("close", "Close")
     )
+
+    CHANGE_CHOICE = (
+        ("pctChange", "Percentage Change"),
+        ("actChange", "Actual Value Change")
+    )
+
     ticker = serializers.CharField()
     numberOfDays = serializers.IntegerField()
     graphValue = serializers.ChoiceField(choices=GRAPHVALUE_CHOICES)
     percentageChange = serializers.IntegerField()
+    change_choice = serializers.ChoiceField(choices=CHANGE_CHOICE)
