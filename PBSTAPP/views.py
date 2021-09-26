@@ -1,4 +1,7 @@
-from PBSTAPP.serializers import CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, IndexSerializer, SearchSerializer, StockSerializer
+import posixpath
+
+from rest_framework import serializers
+from PBSTAPP.serializers import CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, IndexSerializer, SearchSerializer, StockSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USIndexTicker, USStockTicker
@@ -77,6 +80,7 @@ def generalPurpose(request, against):
     }
 
     return context
+
 
 
 @api_view(['GET'])
@@ -186,6 +190,36 @@ def Index_country(request):
 
     return Response(data)
 
+
+#FEATURES
+
+#CORRELATION
+@api_view(['GET', 'POST'])
+def Correlation(request):
+    serializer_class = CorrelationSerializer
+    serializer = serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    base_ticker = serializer.data.get('base_ticker')
+    compare_tickers = serializer.data.get('compare_tickers')
+    startDate = serializer.data.get('startDate')
+    endDate = serializer.data.get('endDate')
+    graphValue = serializer.data.get('graphValue')
+
+    col = []
+
+    for stuff in compare_tickers:
+        try:
+            stv2 = correlationcoefficient(Base_Symbol=base_ticker, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=graphValue)
+            col.append({stuff:stv2})
+        except:
+            pass
+
+    context = {
+        "correlation":col
+    }
+
+    return Response(context)
 
 #DAILY MATCH TREND
 @api_view(['GET'])

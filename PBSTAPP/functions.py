@@ -729,3 +729,77 @@ def actualValuechangev2(symbol, output, hloc, pctChange):
     negativeChange = [x - y for x, y in zip(thelist, discount)]
 
     return data2, postiveChange, negativeChange
+
+# def changeResults(symbol, start, end, hloc, days):
+#     import yfinance as yf
+
+
+#     ticker = yf.Ticker(symbol)
+
+#     historical = ticker.history(period="max")
+
+#     data = historical[hloc]
+
+#     offset = days + 7
+
+# def validate(value, merger):
+#     is_between = []
+#     for r in merger:
+#         if r[0] <= value <= r[1]:
+#             is_between.append(value)
+#         else:
+#             pass
+
+#     return is_between
+
+
+def changeResultsv2(symbol, start, stop, hloc):
+
+    try:
+
+        url = f'https://cloud.iexapis.com/stable/stock/{symbol}/chart/max?token={tokeniex}'
+
+        data = requests.get(url)
+
+        if data.status_code == 200:
+            # data = json.loads(data.content)
+            data = data.json()
+
+        else:
+            data = data.status_code
+
+    except Exception:
+        data = {'Error':'There has been some connection error. Please try again later.'}
+
+    values = []
+
+    date = []
+
+    for items in data:
+        values.append(items[hloc])
+        date.append(items['date'])
+
+    check_value = values[::-1]
+    check_date = date[::-1]
+
+    merge = [[x]+[y] for x, y in zip(start, stop)]
+
+    enum_merge = list(enumerate(merge))
+
+    item = len(check_value)
+
+    results = []
+
+    for i in range(item):
+        first = check_value[i]
+        second = check_value[i + 1]
+        third = check_value[i + 2]
+        if enum_merge[0][1][0] < first < enum_merge[0][1][1] and enum_merge[1][1][0] < second < enum_merge[1][1][1] and enum_merge[2][1][0] < third < enum_merge[2][1][1]:
+            # print(check_date[i], first)
+            # print(check_date[i + 1], second)
+            # print(check_date[i + 2], third)
+            results.append([check_date[i], first, check_date[i + 1], second], check_date[i + 2], third)
+        elif IndexError:
+            pass
+
+    return results

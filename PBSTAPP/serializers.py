@@ -24,14 +24,17 @@ class CountryExchangeSerializer(serializers.Serializer):
     country = serializers.CharField(required=False)
     exchange = serializers.CharField(required=False)
 
-#Daily match trend
-class DailyMatchtrendSerializer(serializers.Serializer):
-    GRAPHVALUE_CHOICES = (
+#HLOC CHOICES
+GRAPHVALUE_CHOICES = (
         ("high","High"),
         ("low", "Low"),
         ("open", "Open"),
         ("close", "Close")
     )
+
+#Daily match trend
+class DailyMatchtrendSerializer(serializers.Serializer):
+    
 
     CHANGE_CHOICE = (
         ("pctChange", "Percentage Change"),
@@ -43,3 +46,11 @@ class DailyMatchtrendSerializer(serializers.Serializer):
     graphValue = serializers.ChoiceField(choices=GRAPHVALUE_CHOICES)
     percentageChange = serializers.IntegerField()
     change_choice = serializers.ChoiceField(choices=CHANGE_CHOICE)
+
+#Correlation Serializer
+class CorrelationSerializer(serializers.Serializer):
+    base_ticker = serializers.CharField()
+    compare_tickers = serializers.ListField()
+    startDate = serializers.DateField()
+    endDate = serializers.DateField()
+    graphValue = serializers.ChoiceField(choices=GRAPHVALUE_CHOICES)

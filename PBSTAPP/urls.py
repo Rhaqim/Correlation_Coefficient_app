@@ -1,5 +1,4 @@
 from django.urls import path
-from django.views.generic import TemplateView
 from . import views
 
 urlpatterns = [
@@ -19,4 +18,5 @@ urlpatterns = [
     path('v2/index_country', views.Index_country),
 
     path('v2/DMT', views.DailyMatchTrend),
+    path('v2/correlation', views.Correlation),
 ]
