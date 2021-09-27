@@ -532,6 +532,34 @@ def correlationcoefficient(Base_Symbol, Compare_Symbol, startdate, enddate , hlo
 
     return corrcoefficient
 
+def getcorr(base_ticker, compare_tickers, startDate, endDate , graphValue):
+    res = {}
+
+    stv = []
+
+    # col = []
+
+    # for stuff in compare_tickers:
+    #     try:
+    #         stv2 = correlationcoefficient(Base_Symbol=base_ticker, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=graphValue)
+    #         col.append({stuff:stv2})
+    #     except:
+    #         pass
+
+    for stuff in compare_tickers:
+        try:
+            stv.append(correlationcoefficient(Base_Symbol=base_ticker, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=graphValue))
+            for i in stv:
+                res[stuff] = i #convert into a dictionary
+                stv.remove(i)
+                break
+        except:
+            pass
+    
+    ans = {k: v for k, v in sorted(res.items(), key=lambda item: item[1], reverse=True)} #sort list in ascendinf order
+
+    return ans
+
 def stockAnalysisV1(Base_Symbol, startdate, enddate, hloc):
     
     from statistics import mean

@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USIndexTicker, USStockTicker
 from decouple import config
 from requests_cache.session import CachedSession
-from .functions import actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2
+from .functions import actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr
 import json
 
 requests = CachedSession()
@@ -193,6 +193,7 @@ def Index_country(request):
 
 #FEATURES
 
+
 #CORRELATION
 @api_view(['GET', 'POST'])
 def Correlation(request):
@@ -206,30 +207,7 @@ def Correlation(request):
     endDate = serializer.data.get('endDate')
     graphValue = serializer.data.get('graphValue')
 
-    res = {}
-
-    stv = []
-
-    # col = []
-
-    # for stuff in compare_tickers:
-    #     try:
-    #         stv2 = correlationcoefficient(Base_Symbol=base_ticker, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=graphValue)
-    #         col.append({stuff:stv2})
-    #     except:
-    #         pass
-
-    for stuff in compare_tickers:
-        try:
-            stv.append(correlationcoefficient(Base_Symbol=base_ticker, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=graphValue))
-            for i in stv:
-                res[stuff] = i #convert into a dictionary
-                stv.remove(i)
-                break
-        except:
-            pass
-    
-    ans = {k: v for k, v in sorted(res.items(), key=lambda item: item[1], reverse=True)} #sort list in ascendinf order
+    ans = getcorr(base_ticker, compare_tickers, startDate, endDate , graphValue)
 
     context = {
         "correlation":ans
@@ -238,7 +216,7 @@ def Correlation(request):
     return Response(context)
 
 #DAILY MATCH TREND
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def DailyMatchTrend(request):
     Serializer_class = DailyMatchtrendSerializer
     serializer = Serializer_class(data=request.data)
