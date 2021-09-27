@@ -206,17 +206,33 @@ def Correlation(request):
     endDate = serializer.data.get('endDate')
     graphValue = serializer.data.get('graphValue')
 
-    col = []
+    res = {}
+
+    stv = []
+
+    # col = []
+
+    # for stuff in compare_tickers:
+    #     try:
+    #         stv2 = correlationcoefficient(Base_Symbol=base_ticker, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=graphValue)
+    #         col.append({stuff:stv2})
+    #     except:
+    #         pass
 
     for stuff in compare_tickers:
         try:
-            stv2 = correlationcoefficient(Base_Symbol=base_ticker, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=graphValue)
-            col.append({stuff:stv2})
+            stv.append(correlationcoefficient(Base_Symbol=base_ticker, Compare_Symbol=stuff, startdate=startDate, enddate=endDate, hloc=graphValue))
+            for i in stv:
+                res[stuff] = i #convert into a dictionary
+                stv.remove(i)
+                break
         except:
             pass
+    
+    ans = {k: v for k, v in sorted(res.items(), key=lambda item: item[1], reverse=True)} #sort list in ascendinf order
 
     context = {
-        "correlation":col
+        "correlation":ans
     }
 
     return Response(context)
