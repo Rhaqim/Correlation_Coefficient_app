@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'PBSTAPP',
-    'Accounts',
+    'authentication',
 
     #django allauth dependables
     'django.contrib.sites',
