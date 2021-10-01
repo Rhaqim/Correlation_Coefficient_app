@@ -1,10 +1,11 @@
-from PBSTAPP.serializers import CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, IndexSerializer, SearchSerializer, StockSerializer
+from PBSTAPP import serializers
+from PBSTAPP.serializers import CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USIndexTicker, USStockTicker
 from decouple import config
 from requests_cache.session import CachedSession
-from .functions import actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr
+from .functions import actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction
 import json
 
 requests = CachedSession()
@@ -77,7 +78,6 @@ def generalPurpose(request, against):
     }
 
     return context
-
 
 
 @api_view(['GET'])
@@ -236,6 +236,27 @@ def DailyMatchTrend(request):
         'positive': postiveChange[::-1],
         'negative': negativeChange[::-1],
         'date':date,
+    }
+
+    return Response(context)
+
+# Predictions
+@api_view(['GET', 'POST'])
+def predictions(request):
+    Serializer_class = PowerPredSerializer
+    serializer = Serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    ticker = serializer.data.get('ticker')
+    startDate = serializer.data.get('startDate')
+    endDate = serializer.data.get('endDate')
+    graphValue = serializer.data.get('graphValue')
+    power = serializer.data.get('power')
+
+    formula = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
+
+    context = {
+        'formula':formula,
     }
 
     return Response(context)

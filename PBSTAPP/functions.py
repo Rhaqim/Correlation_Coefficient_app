@@ -831,3 +831,41 @@ def changeResultsv2(symbol, start, stop, hloc):
             pass
 
     return results
+
+def PowerRegressPrediction(symbol, hloc, power:int, startdate, enddate):
+    import datetime as dt
+    import numpy as np
+
+    data = tweleveDataTimeseriesApiCall(symbol, startdate, enddate)
+
+    ticker = data.get('values')
+
+    historical = {}
+
+    dates = []
+
+    targets = []
+
+    for items in ticker:
+
+        dates.append(items["datetime"])
+
+        targets.append(items[hloc])
+
+    final_dates = pd.Series(dates)
+    final_targets = pd.Series(targets)
+
+    historical["Date"] = pd.to_datetime(final_dates)
+
+    historical["Date"] = historical["Date"].map(dt.datetime.toordinal)
+
+    historical["target"] = pd.to_numeric(final_targets)
+
+    X = np.array(historical["Date"])
+    Y = np.array(historical["target"])
+
+    check = np.polyfit(X, Y, power)
+ 
+    # p = np.poly1d(check)
+
+    return check

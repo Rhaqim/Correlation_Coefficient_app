@@ -54,3 +54,12 @@ class CorrelationSerializer(serializers.Serializer):
     startDate = serializers.DateField()
     endDate = serializers.DateField()
     graphValue = serializers.ChoiceField(choices=GRAPHVALUE_CHOICES)
+
+#Prediction Serializer
+class PowerPredSerializer(serializers.Serializer):
+    ticker = serializers.CharField()
+    startDate = serializers.DateField()
+    endDate = serializers.DateField()
+    graphValue = serializers.ChoiceField(choices=GRAPHVALUE_CHOICES)
+    power = serializers.IntegerField()
+
