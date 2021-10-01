@@ -870,6 +870,6 @@ def PowerRegressPrediction(symbol, hloc, power:int, startdate, enddate):
 
     r2 = correlation**2
  
-    # p = np.poly1d(check)
+    p = np.poly1d(check)
 
-    return check, r2
+    return check, r2, p

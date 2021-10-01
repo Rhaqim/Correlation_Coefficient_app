@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import *
 
+
+#SEARCH SERIALIZERS
 class SearchSerializer(serializers.Serializer):
     symbolValue = serializers.CharField()
     startdate = serializers.DateField()
@@ -10,6 +12,14 @@ class SearchSerializer(serializers.Serializer):
 class CountrySerializer(serializers.Serializer):
     country = serializers.CharField()
 
+class ExchangeSerializer(serializers.Serializer):
+    exchange = serializers.CharField()
+
+class CountryExchangeSerializer(serializers.Serializer):
+    country = serializers.CharField(required=False)
+    exchange = serializers.CharField(required=False)
+
+#MODEL SERIALIZERS
 class IndexSerializer(serializers.ModelSerializer):
     class Meta:
         model = IndexTickers
@@ -20,9 +30,8 @@ class StockSerializer(serializers.ModelSerializer):
         model = StockTickers
         fields = '__all__'
 
-class CountryExchangeSerializer(serializers.Serializer):
-    country = serializers.CharField(required=False)
-    exchange = serializers.CharField(required=False)
+
+#FEATURES SERIALIZERS
 
 #HLOC CHOICES
 GRAPHVALUE_CHOICES = (
@@ -35,7 +44,6 @@ GRAPHVALUE_CHOICES = (
 #Daily match trend
 class DailyMatchtrendSerializer(serializers.Serializer):
     
-
     CHANGE_CHOICE = (
         ("pctChange", "Percentage Change"),
         ("actChange", "Actual Value Change")

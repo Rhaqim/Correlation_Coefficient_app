@@ -1,4 +1,4 @@
-from PBSTAPP.serializers import CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer
+from PBSTAPP.serializers import CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, ExchangeSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USStockTicker
@@ -156,9 +156,24 @@ def Search_Country(request, model, serializer_model):
 
     return context
 
+def Search_exchange(request, model, serializer_model):
+    serializer_class = ExchangeSerializer
+    serializer = serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    excahnge = serializer.data.get('exchange')
+
+    QuerySet = model.objects.all().filter(exchange__icontains= excahnge)
+
+    serialized_model = serializer_model(QuerySet, many=True)
+
+    context = serialized_model.data
+
+    return context
+
 
 @api_view(['GET'])
-def Stock_country(request):
+def Stock_search(request):
     serializer_class = CountryExchangeSerializer
     serializer = serializer_class(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -179,12 +194,24 @@ def Stock_country(request):
 
 
 @api_view(['GET'])
-def Index_country(request):
+def Index_search(request):
+    serializer_class = CountryExchangeSerializer
+    serializer = serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
+    country = serializer.data.get('country')
+    # exchange = serializer.data.get('exchange')
 
-    data = Search_Country(request, IndexTickers, IndexSerializer)
+    QuerySet = IndexTickers.objects.all().filter(country__icontains= country)
 
-    return Response(data)
+    # if exchange != None:
+    #     QuerySet = QuerySet.filter(exchange__icontains = exchange)
+
+    serializer_model = IndexSerializer(QuerySet, many=True)
+
+    context = serializer_model.data
+
+    return Response(context)
 
 
 #FEATURES
@@ -251,11 +278,14 @@ def predictions(request):
     graphValue = serializer.data.get('graphValue')
     power = serializer.data.get('power')
 
-    formula, r2 = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
+    formula, r2, poly_formula = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
+
+    str_poly = str(poly_formula)
 
     context = {
         'formula':formula,
         'R_squared_value':r2,
+        'str_form':str_poly
     }
 
     return Response(context)
