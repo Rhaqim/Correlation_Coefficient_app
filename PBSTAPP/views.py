@@ -1,8 +1,7 @@
-from PBSTAPP import serializers
 from PBSTAPP.serializers import CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USIndexTicker, USStockTicker
+from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USStockTicker
 from decouple import config
 from requests_cache.session import CachedSession
 from .functions import actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction
@@ -190,7 +189,6 @@ def Index_country(request):
 
 #FEATURES
 
-
 #CORRELATION
 @api_view(['GET', 'POST'])
 def Correlation(request):
@@ -253,10 +251,11 @@ def predictions(request):
     graphValue = serializer.data.get('graphValue')
     power = serializer.data.get('power')
 
-    formula = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
+    formula, r2 = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
 
     context = {
         'formula':formula,
+        'R_squared_value':r2,
     }
 
     return Response(context)

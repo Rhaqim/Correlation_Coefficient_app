@@ -865,7 +865,11 @@ def PowerRegressPrediction(symbol, hloc, power:int, startdate, enddate):
     Y = np.array(historical["target"])
 
     check = np.polyfit(X, Y, power)
+
+    correlation = np.corrcoef(X, Y)[0,1]
+
+    r2 = correlation**2
  
     # p = np.poly1d(check)
 
-    return check
+    return check, r2
