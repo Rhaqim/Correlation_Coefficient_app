@@ -278,13 +278,12 @@ def predictions(request):
     graphValue = serializer.data.get('graphValue')
     power = serializer.data.get('power')
 
-    formula, r2, poly_formula = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
+    results, poly_formula = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
 
     str_poly = str(poly_formula)
 
     context = {
-        'formula':formula,
-        'R_squared_value':r2,
+        'formula_data':results,
         'str_form':str_poly
     }
 

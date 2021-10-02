@@ -866,10 +866,20 @@ def PowerRegressPrediction(symbol, hloc, power:int, startdate, enddate):
 
     check = np.polyfit(X, Y, power)
 
-    correlation = np.corrcoef(X, Y)[0,1]
-
-    r2 = correlation**2
- 
     p = np.poly1d(check)
 
-    return check, r2, p
+    results = {}
+
+    # Polynomial Coefficients
+    results['polynomial'] = check.tolist()
+
+    # r-squared
+    p = np.poly1d(check)
+    # fit values, and mean
+    yhat = p(X)                         # or [p(z) for z in x]
+    ybar = np.sum(Y)/len(Y)          # or sum(y)/len(y)
+    ssreg = np.sum((yhat-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
+    sstot = np.sum((Y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
+    results['determination'] = ssreg / sstot
+
+    return results, p
