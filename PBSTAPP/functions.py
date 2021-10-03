@@ -882,4 +882,65 @@ def PowerRegressPrediction(symbol, hloc, power:int, startdate, enddate):
     sstot = np.sum((Y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
     results['determination'] = ssreg / sstot
 
-    return results, p
+    # return results, p, dates, targets
+    return results, p, historical
+
+
+def ExponRegressPrediction(symbol, hloc, power:int, startdate, enddate):
+    import datetime as dt
+    import numpy as np
+
+    data = tweleveDataTimeseriesApiCall(symbol, startdate, enddate)
+
+    ticker = data.get('values')
+
+    historical = {}
+
+    dates = []
+
+    targets = []
+
+    for items in ticker:
+
+        dates.append(items["datetime"])
+
+        targets.append(items[hloc])
+
+    final_dates = pd.Series(dates)
+    final_targets = pd.Series(targets)
+
+    historical["Date"] = pd.to_datetime(final_dates)
+
+    historical["Date"] = historical["Date"].map(dt.datetime.toordinal)
+
+    historical["target"] = pd.to_numeric(final_targets)
+
+    X = np.array(historical["Date"])
+    Y = np.array(historical["target"])
+
+    check = np.polyfit(X, np.log(Y), power)
+
+    # check = np.polyfit(X, Y, power)
+
+    p = np.poly1d(check)
+
+    results = {}
+
+    # Polynomial Coefficients
+    coef = check.tolist()
+
+    results['polynomial'] = coef
+
+    # r-squared
+    p = np.poly1d(check)
+
+    # fit values, and mean
+    yhat = p(X)                         # or [p(z) for z in x]
+    ybar = np.sum(Y)/len(Y)          # or sum(y)/len(y)
+    ssreg = np.sum((yhat-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
+    sstot = np.sum((Y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
+    results['determination'] = ssreg / sstot
+
+    y = coef[0] * np.exp((coef[1] * X))
+
+    return results, historical

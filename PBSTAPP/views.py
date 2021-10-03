@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USStockTicker
 from decouple import config
 from requests_cache.session import CachedSession
-from .functions import actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction
+from .functions import actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction, ExponRegressPrediction
 import json
 
 requests = CachedSession()
@@ -116,6 +116,8 @@ def forexhomepage(request):
     country_code, country_name = get_geolocation_for_ip(ip)
 
     country_code = get_corresponding_currency(country_code)
+
+    country_code = "ngn"
 
     try:
 
@@ -278,14 +280,42 @@ def predictions(request):
     graphValue = serializer.data.get('graphValue')
     power = serializer.data.get('power')
 
-    results, poly_formula = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
+    # results, poly_formula, ticker_date, ticker_target = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
+    results, poly_formula, ticker_date = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
 
     str_poly = str(poly_formula)
 
     context = {
         'formula_data':results,
-        'str_form':str_poly
+        'str_form':str_poly,
+        'ticker_date':ticker_date,
+        # 'ticker_target':ticker_target,
     }
 
     return Response(context)
 
+@api_view(['GET'])
+def Expon(request):
+    # Serializer_class = PowerPredSerializer
+    # serializer = Serializer_class(data=request.data)
+    # serializer.is_valid(raise_exception=True)
+
+    # ticker = serializer.data.get('ticker')
+    # startDate = serializer.data.get('startDate')
+    # endDate = serializer.data.get('endDate')
+    # graphValue = serializer.data.get('graphValue')
+    # power = serializer.data.get('power')
+
+    # results, poly_formula, ticker_date, ticker_target = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
+    a, b = ExponRegressPrediction("aapl", "close", 1, "2021-05-01", "2021-09-25")
+
+    # str_poly = str(poly_formula)
+
+    context = {
+        'a':a,
+        'b':b,
+
+        # 'ticker_target':ticker_target,
+    }
+
+    return Response(context)

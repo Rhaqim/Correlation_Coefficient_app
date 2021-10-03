@@ -30,7 +30,6 @@ class StockSerializer(serializers.ModelSerializer):
         model = StockTickers
         fields = '__all__'
 
-
 #FEATURES SERIALIZERS
 
 #HLOC CHOICES
