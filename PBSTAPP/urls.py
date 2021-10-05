@@ -19,6 +19,8 @@ urlpatterns = [
 
     path('v2/DMT', views.DailyMatchTrend),
     path('v2/correlation', views.Correlation),
+
     path('v2/prediction', views.predictions),
-    path('v2/expon', views.Expon)
+    path('v2/prediction/exponprediction', views.ExponPrediction),
+    path('v2/prediction/polypredictions', views.PolyPredictions),
 ]

@@ -63,7 +63,15 @@ class CorrelationSerializer(serializers.Serializer):
     graphValue = serializers.ChoiceField(choices=GRAPHVALUE_CHOICES)
 
 #Prediction Serializer
-class PowerPredSerializer(serializers.Serializer):
+class BasePredSerializer(serializers.Serializer):
+
+    ticker = serializers.CharField()
+    startDate = serializers.DateField()
+    endDate = serializers.DateField()
+    graphValue = serializers.ChoiceField(choices=GRAPHVALUE_CHOICES)
+
+#Polynomial
+class PowerPredSerializer(BasePredSerializer):
 
     POWER_CHOICES = (
         (1, "1"),
@@ -74,8 +82,4 @@ class PowerPredSerializer(serializers.Serializer):
         (6, "6")
     )
 
-    ticker = serializers.CharField()
-    startDate = serializers.DateField()
-    endDate = serializers.DateField()
-    graphValue = serializers.ChoiceField(choices=GRAPHVALUE_CHOICES)
     power = serializers.ChoiceField(choices=POWER_CHOICES)

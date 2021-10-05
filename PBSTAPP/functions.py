@@ -3,6 +3,10 @@ from decouple import config
 from requests_cache.session import CachedSession
 import json
 import pandas as pd
+import datetime as dt
+import numpy as np
+from scipy.optimize import curve_fit
+
 
 tokeniex = config('IEXTOKEN')
 token12 = config('TWELVEDATATOKEN')
@@ -886,9 +890,62 @@ def PowerRegressPrediction(symbol, hloc, power:int, startdate, enddate):
     return results, p, historical
 
 
-def ExponRegressPrediction(symbol, hloc, power:int, startdate, enddate):
-    import datetime as dt
-    import numpy as np
+def ExponRegressPrediction(symbol, hloc, startdate, enddate):
+    
+    data = tweleveDataTimeseriesApiCall(symbol, startdate, enddate)
+
+    ticker = data.get('values')
+
+    historical = {}
+
+    dates = []
+
+    targets = []
+
+    for items in ticker:
+
+        dates.append(items["datetime"])
+
+        targets.append(items[hloc])
+
+    final_dates = pd.Series(dates)
+    final_targets = pd.Series(targets)
+
+    historical["Date"] = pd.to_datetime(final_dates)
+
+    historical["Date"] = historical["Date"].map(dt.datetime.toordinal)
+
+    historical["target"] = pd.to_numeric(final_targets)
+
+    new_list = []
+
+    n = len(historical["Date"])
+
+    while n > 0:
+        new_list.append(n)
+        n -= 1
+
+    x = np.array(new_list)
+    y = np.array(historical["target"])
+
+    # exponential
+    def func(x, a, b):
+        Y = a * np.exp(-b * x)
+        return Y
+
+    # func = lambda x, a, b: a * np.exp(-b * x)
+
+    popt, pcov = curve_fit(func, x, y)
+
+    residuals = y - func(x, *popt)
+    ss_res = np.sum(residuals**2)
+    ss_tot = np.sum((y-np.mean(y))**2)
+    r_squared = 1 - (ss_res / ss_tot)
+
+    return popt, r_squared, dates, targets
+
+
+def polyPredictions(symbol, hloc, startdate, enddate, power:int):
 
     data = tweleveDataTimeseriesApiCall(symbol, startdate, enddate)
 
@@ -915,32 +972,48 @@ def ExponRegressPrediction(symbol, hloc, power:int, startdate, enddate):
 
     historical["target"] = pd.to_numeric(final_targets)
 
-    X = np.array(historical["Date"])
-    Y = np.array(historical["target"])
+    new_list = []
 
-    check = np.polyfit(X, np.log(Y), power)
+    n = len(historical["Date"])
 
-    # check = np.polyfit(X, Y, power)
+    while n > 0:
+        new_list.append(n)
+        n -= 1
 
-    p = np.poly1d(check)
+    x = np.array(new_list)
+    y = np.array(historical["target"])
 
-    results = {}
+    if power == 6:
+        func = lambda x, a, b, c, d, e, f, g: a*x**6 + b*x**5 + c*x**4 + d*x**3 + e*x**2 + f*x + g
+        popt, pcov = curve_fit(func, x, y)
 
-    # Polynomial Coefficients
-    coef = check.tolist()
+    if power == 5:
+        func = lambda x, a, b, c, d, e, f: a*x**5 + b*x**4 + c*x**3 + d*x**2 + e*x + f
+        popt, pcov = curve_fit(func, x, y)
 
-    results['polynomial'] = coef
+    if power == 4:
+        func = lambda x, a, b, c, d, e: a*x**4 + b*x**3 + c*x**2 + d*x + e
+        popt, pcov = curve_fit(func, x, y)
+
+    if power == 3:
+        func = lambda x, a, b, c, d: a*x**3 + b*x**2 +c*x + d
+        popt, pcov = curve_fit(func, x, y)
+
+    if power == 2:
+        func = lambda x, a, b, c: a*x**2 + b*x +c
+        popt, pcov = curve_fit(func, x, y)
+
+    if power == 1:
+        func = lambda x, a, b: a*x + b
+        popt, pcov = curve_fit(func, x, y)
 
     # r-squared
-    p = np.poly1d(check)
-
+    p = np.poly1d(popt)
     # fit values, and mean
-    yhat = p(X)                         # or [p(z) for z in x]
-    ybar = np.sum(Y)/len(Y)          # or sum(y)/len(y)
+    yhat = p(x)                         # or [p(z) for z in x]
+    ybar = np.sum(y)/len(y)          # or sum(y)/len(y)
     ssreg = np.sum((yhat-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
-    sstot = np.sum((Y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
-    results['determination'] = ssreg / sstot
+    sstot = np.sum((y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
+    r_squared = ssreg / sstot
 
-    y = coef[0] * np.exp((coef[1] * X))
-
-    return results, historical
+    return popt, r_squared, dates, targets

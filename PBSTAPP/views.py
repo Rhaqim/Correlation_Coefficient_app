@@ -1,10 +1,10 @@
-from PBSTAPP.serializers import CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, ExchangeSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer
+from PBSTAPP.serializers import BasePredSerializer, CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, ExchangeSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USStockTicker
 from decouple import config
 from requests_cache.session import CachedSession
-from .functions import actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction, ExponRegressPrediction
+from .functions import actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction, ExponRegressPrediction, polyPredictions
 import json
 
 requests = CachedSession()
@@ -294,28 +294,47 @@ def predictions(request):
 
     return Response(context)
 
-@api_view(['GET'])
-def Expon(request):
-    # Serializer_class = PowerPredSerializer
-    # serializer = Serializer_class(data=request.data)
-    # serializer.is_valid(raise_exception=True)
+@api_view(['GET', 'POST'])
+def ExponPrediction(request):
+    Serializer_class = BasePredSerializer
+    serializer = Serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
-    # ticker = serializer.data.get('ticker')
-    # startDate = serializer.data.get('startDate')
-    # endDate = serializer.data.get('endDate')
-    # graphValue = serializer.data.get('graphValue')
-    # power = serializer.data.get('power')
+    ticker = serializer.data.get('ticker')
+    startDate = serializer.data.get('startDate')
+    endDate = serializer.data.get('endDate')
+    graphValue = serializer.data.get('graphValue')
 
-    # results, poly_formula, ticker_date, ticker_target = PowerRegressPrediction(ticker, graphValue, power, startDate, endDate)
-    a, b = ExponRegressPrediction("aapl", "close", 1, "2021-05-01", "2021-09-25")
-
-    # str_poly = str(poly_formula)
+    formula_data, r_squared, ticker_date, ticker_target = ExponRegressPrediction(ticker, graphValue, startDate, endDate)
 
     context = {
-        'a':a,
-        'b':b,
+        'formula_data':formula_data,
+        'r_squared':r_squared,
+        'ticker_date':ticker_date,
+        'ticker_target':ticker_target,
+    }
 
-        # 'ticker_target':ticker_target,
+    return Response(context)
+
+@api_view(['GET', 'POST'])
+def PolyPredictions(request):
+    Serializer_class = PowerPredSerializer
+    serializer = Serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    ticker = serializer.data.get('ticker')
+    startDate = serializer.data.get('startDate')
+    endDate = serializer.data.get('endDate')
+    graphValue = serializer.data.get('graphValue')
+    power = serializer.data.get('power')
+
+    formula_data, r_squared, ticker_date, ticker_target = polyPredictions(ticker, graphValue, startDate, endDate, power)
+
+    context = {
+        'formula_data':formula_data,
+        'r_squared':r_squared,
+        'ticker_date':ticker_date,
+        'ticker_target':ticker_target,
     }
 
     return Response(context)
