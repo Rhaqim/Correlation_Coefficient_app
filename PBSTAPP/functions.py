@@ -1017,3 +1017,54 @@ def polyPredictions(symbol, hloc, startdate, enddate, power:int):
     r_squared = ssreg / sstot
 
     return popt, r_squared, dates, targets
+
+
+def LogPredictions(symbol, hloc, startdate, enddate):
+
+    data = tweleveDataTimeseriesApiCall(symbol, startdate, enddate)
+
+    ticker = data.get('values')
+
+    historical = {}
+
+    dates = []
+
+    targets = []
+
+    for items in ticker:
+
+        dates.append(items["datetime"])
+
+        targets.append(items[hloc])
+
+    final_dates = pd.Series(dates)
+    final_targets = pd.Series(targets)
+
+    historical["Date"] = pd.to_datetime(final_dates)
+
+    historical["Date"] = historical["Date"].map(dt.datetime.toordinal)
+
+    historical["target"] = pd.to_numeric(final_targets)
+
+    new_list = []
+
+    n = len(historical["Date"])
+
+    while n > 0:
+        new_list.append(n)
+        n -= 1
+
+    x = np.array(new_list)
+    y = np.array(historical["target"])
+
+    func = lambda x, a, b: b + a * np.log(x)
+    popt, pcov = curve_fit(func, x, y)
+
+    popt, pcov = curve_fit(func, x, y)
+
+    residuals = y - func(x, *popt)
+    ss_res = np.sum(residuals**2)
+    ss_tot = np.sum((y-np.mean(y))**2)
+    r_squared = 1 - (ss_res / ss_tot)
+
+    return popt, r_squared, dates, targets

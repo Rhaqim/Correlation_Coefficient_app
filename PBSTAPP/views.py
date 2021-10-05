@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USStockTicker
 from decouple import config
 from requests_cache.session import CachedSession
-from .functions import actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction, ExponRegressPrediction, polyPredictions
+from .functions import LogPredictions, actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction, ExponRegressPrediction, polyPredictions
 import json
 
 requests = CachedSession()
@@ -315,6 +315,29 @@ def ExponPrediction(request):
     }
 
     return Response(context)
+
+@api_view(['GET', 'POST'])
+def LogPrediction(request):
+    Serializer_class = BasePredSerializer
+    serializer = Serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    ticker = serializer.data.get('ticker')
+    startDate = serializer.data.get('startDate')
+    endDate = serializer.data.get('endDate')
+    graphValue = serializer.data.get('graphValue')
+
+    formula_data, r_squared, ticker_date, ticker_target = LogPredictions(ticker, graphValue, startDate, endDate)
+
+    context = {
+        'formula_data':formula_data,
+        'r_squared':r_squared,
+        'ticker_date':ticker_date,
+        'ticker_target':ticker_target,
+    }
+
+    return Response(context)
+
 
 @api_view(['GET', 'POST'])
 def PolyPredictions(request):

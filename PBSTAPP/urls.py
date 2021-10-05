@@ -23,4 +23,5 @@ urlpatterns = [
     path('v2/prediction', views.predictions),
     path('v2/prediction/exponprediction', views.ExponPrediction),
     path('v2/prediction/polypredictions', views.PolyPredictions),
+    path('v2/prediction/logpredictions', views.LogPrediction),
 ]
