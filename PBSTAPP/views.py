@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USStockTicker
 from decouple import config
 from requests_cache.session import CachedSession
-from .functions import LogPredictions, actualValuechangev2, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction, ExponRegressPrediction, polyPredictions
+from .functions import LogPredictions, actualValuechangev2, dailyMatchTrendSearch, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction, ExponRegressPrediction, polyPredictions
 import json
 
 requests = CachedSession()
@@ -254,14 +254,16 @@ def DailyMatchTrend(request):
 
     if change_choice == 'actChange':
         date, postiveChange, negativeChange = actualValuechangev2(ticker, days, graphValue, pctChange)
+        DMT_values, DMT_dates = dailyMatchTrendSearch(ticker, negativeChange, postiveChange, graphValue)
     
     if change_choice == 'pctChange':
         date, postiveChange, negativeChange = percentagechangev2(ticker, days, graphValue, pctChange)
-    
 
     context = {
         'positive': postiveChange[::-1],
         'negative': negativeChange[::-1],
+        'DMT_values':DMT_values,
+        'DMT_dates':DMT_dates,
         'date':date,
     }
 

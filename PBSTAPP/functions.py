@@ -1058,7 +1058,6 @@ def LogPredictions(symbol, hloc, startdate, enddate):
     y = np.array(historical["target"])
 
     func = lambda x, a, b: b + a * np.log(x)
-    popt, pcov = curve_fit(func, x, y)
 
     popt, pcov = curve_fit(func, x, y)
 
@@ -1068,3 +1067,168 @@ def LogPredictions(symbol, hloc, startdate, enddate):
     r_squared = 1 - (ss_res / ss_tot)
 
     return popt, r_squared, dates, targets
+
+#Daily Match Trend
+def earliest_timestand(symbol):
+
+    try:
+
+        url = f'https://api.twelvedata.com/earliest_timestamp?symbol={symbol}&interval=1day&apikey={token12}'
+
+        data_earlistTime = requests.get(url)
+
+        if data_earlistTime.status_code == 200:
+            # data_earlistTime = json.loads(data_earlistTime.content)
+            data_earlistTime = data_earlistTime.json()
+
+        else:
+            data_earlistTime = {'Error' : 'There was a problem with your provided ticker symbol. Please try again'}
+
+    except Exception:
+        data_earlistTime = {'Error':'There has been some connection error. Please try again later.'}
+
+    return data_earlistTime["datetime"]
+
+
+def dailyMatchTrendSearch(symbol, start, stop, hloc):
+    import datetime as dt
+
+    startdate = earliest_timestand(symbol)
+
+    enddate = dt.date.today()
+
+    NumOfDays = len(start)
+
+    offset = NumOfDays + 7
+
+    data = tweleveDataTimeseriesApiCall(symbol, startdate, enddate)
+
+    historical = {}
+
+    dates = []
+
+    targets = []
+
+    for items in data["values"]:
+        dates.append(items["datetime"])
+        targets.append(float(items[hloc]))
+
+    # targets = targets[::-1]
+    # dates = dates[::-1]
+
+    targets = targets[offset -1:]
+    dates = dates[offset -1:]
+
+    historical["Dates"] = dates
+    historical["targets"] = targets
+
+    merge = [[x]+[y] for x, y in zip(start, stop)] #combine start and stop into lists
+
+    enum_merge = list(enumerate(merge)) #enum list to help indexing
+
+    checking = {}
+
+    checking_dates = {}
+
+    for i in range(len(targets)):
+        first = targets[i]
+        second = targets[i + 1]
+        third = targets[i + 2]
+        fourth = targets[i + 3]
+        fifth = targets[i + 4]
+        sixth = targets[i + 5]
+        seventh = targets[i + 6]
+
+        first_date = dates[i]
+        second_date = dates[i + 1]
+        third_date = dates[i + 2]
+        fourth_date = dates[i + 3]
+        fifth_date = dates[i + 4]
+        sixth_date = dates[i + 5]
+        seventh_date = dates[i + 6]
+
+        if NumOfDays == 2:
+            if enum_merge[0][1][0] < first < enum_merge[0][1][1] and enum_merge[1][1][0] < second < enum_merge[1][1][1]:
+                checking["first"] = first
+                checking["second"] = second
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                break
+
+        if NumOfDays == 3:
+            if enum_merge[0][1][0] < first < enum_merge[0][1][1] and enum_merge[1][1][0] < second < enum_merge[1][1][1] and enum_merge[2][1][0] < third < enum_merge[2][1][1]:
+                checking["first"] = first
+                checking["second"] = second
+                checking["third"] = third
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                checking_dates["third_date"] = third_date
+                break
+
+        if NumOfDays == 4:
+            if enum_merge[0][1][0] < first < enum_merge[0][1][1] and enum_merge[1][1][0] < second < enum_merge[1][1][1] and enum_merge[2][1][0] < third < enum_merge[2][1][1] and enum_merge[3][1][0] < fourth < enum_merge[3][1][1]:
+                checking["first"] = first
+                checking["second"] = second
+                checking["third"] = third
+                checking["fourth"] = fourth
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                checking_dates["third_date"] = third_date
+                checking_dates["fourth_date"] = fourth_date
+                break
+
+        if NumOfDays == 5:
+            if enum_merge[0][1][0] < first < enum_merge[0][1][1] and enum_merge[1][1][0] < second < enum_merge[1][1][1] and enum_merge[2][1][0] < third < enum_merge[2][1][1] and enum_merge[3][1][0] < fourth < enum_merge[3][1][1] and enum_merge[4][1][0] < fifth < enum_merge[4][1][1]:
+                checking["first"] = first
+                checking["second"] = second
+                checking["third"] = third
+                checking["fourth"] = fourth
+                checking["fifth"] = fifth
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                checking_dates["third_date"] = third_date
+                checking_dates["fourth_date"] = fourth_date
+                checking_dates["fifth_date"] = fifth_date
+                break
+
+        if NumOfDays == 6:
+            if enum_merge[0][1][0] < first < enum_merge[0][1][1] and enum_merge[1][1][0] < second < enum_merge[1][1][1] and enum_merge[2][1][0] < third < enum_merge[2][1][1] and enum_merge[3][1][0] < fourth < enum_merge[3][1][1] and enum_merge[4][1][0] < fifth < enum_merge[4][1][1]:
+                checking["first"] = first
+                checking["second"] = second
+                checking["third"] = third
+                checking["fourth"] = fourth
+                checking["fifth"] = fifth
+                checking["sixth"] = sixth
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                checking_dates["third_date"] = third_date
+                checking_dates["fourth_date"] = fourth_date
+                checking_dates["fifth_date"] = fifth_date
+                checking_dates["sixth_date"] = sixth_date
+                break
+
+        if NumOfDays == 7:
+            if enum_merge[0][1][0] < first < enum_merge[0][1][1] and enum_merge[1][1][0] < second < enum_merge[1][1][1] and enum_merge[2][1][0] < third < enum_merge[2][1][1] and enum_merge[3][1][0] < fourth < enum_merge[3][1][1] and enum_merge[4][1][0] < fifth < enum_merge[4][1][1] and enum_merge[5][1][0] < sixth < enum_merge[5][1][1] and enum_merge[6][1][0] < seventh < enum_merge[6][1][1]:
+                checking["first"] = first
+                checking["second"] = second
+                checking["third"] = third
+                checking["fourth"] = fourth
+                checking["fifth"] = fifth
+                checking["sixth"] = sixth
+                checking["seventh"] = seventh
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                checking_dates["third_date"] = third_date
+                checking_dates["fourth_date"] = fourth_date
+                checking_dates["fifth_date"] = fifth_date
+                checking_dates["sixth_date"] = sixth_date
+                checking_dates["seventh_date"] = seventh_date
+                break
+
+    return checking, checking_dates

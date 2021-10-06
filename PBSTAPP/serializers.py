@@ -42,14 +42,22 @@ GRAPHVALUE_CHOICES = (
 
 #Daily match trend
 class DailyMatchtrendSerializer(serializers.Serializer):
-    
+    DAYSCHOICE = (
+        (2, "2"),
+        (3, "3"),
+        (4, "4"),
+        (5, "5"),
+        (6, "6"),
+        (7, "7")
+    )
+
     CHANGE_CHOICE = (
         ("pctChange", "Percentage Change"),
         ("actChange", "Actual Value Change")
     )
 
     ticker = serializers.CharField()
-    numberOfDays = serializers.IntegerField()
+    numberOfDays = serializers.ChoiceField(choices=DAYSCHOICE)
     graphValue = serializers.ChoiceField(choices=GRAPHVALUE_CHOICES)
     percentageChange = serializers.IntegerField()
     change_choice = serializers.ChoiceField(choices=CHANGE_CHOICE)
