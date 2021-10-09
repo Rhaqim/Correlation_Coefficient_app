@@ -9,6 +9,9 @@ class SearchSerializer(serializers.Serializer):
     enddate = serializers.DateField()
     hloc = serializers.CharField()
 
+class NameSearchSerializer(serializers.Serializer):
+    name = serializers.CharField()
+
 class CountrySerializer(serializers.Serializer):
     country = serializers.CharField()
 

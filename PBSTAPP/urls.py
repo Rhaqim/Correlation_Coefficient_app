@@ -16,6 +16,7 @@ urlpatterns = [
 
     path('v2/stock_search', views.Stock_search),
     path('v2/Index_search', views.Index_search),
+    path('v2/search', views.autocomplete),
 
     path('v2/DMT', views.DailyMatchTrend),
     path('v2/correlation', views.Correlation),

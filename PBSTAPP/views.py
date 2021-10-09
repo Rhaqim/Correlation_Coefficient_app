@@ -1,4 +1,4 @@
-from PBSTAPP.serializers import BasePredSerializer, CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, ExchangeSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer
+from PBSTAPP.serializers import BasePredSerializer, CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, ExchangeSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer, NameSearchSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USStockTicker
@@ -14,8 +14,10 @@ tokeniex = config('IEXTOKEN')
 @api_view(['GET'])
 def Homepage(request):
     
+    serializer_model = StockSerializer(many=True)
 
-    context = "serializer_model.data"
+    context = serializer_model.data
+    # context = "serializer_model.data"
 
     return Response(context)
 
@@ -363,6 +365,23 @@ def PolyPredictions(request):
         'r_squared':r_squared,
         'ticker_date':ticker_date,
         'ticker_target':ticker_target,
+    }
+
+    return Response(context)
+
+@api_view(['GET', 'POST'])
+def autocomplete(request):
+    serializer_class = NameSearchSerializer
+    serializer = serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    name_query = serializer.data.get('name')
+
+    ticker_names = (StockTickers.objects
+                    .filter(name__startswith=name_query)
+                    .values_list('name','exchange'))
+
+    context = {
+        'ticker_names': ticker_names,
     }
 
     return Response(context)
