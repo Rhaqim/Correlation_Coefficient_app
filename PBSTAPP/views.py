@@ -254,8 +254,11 @@ def DailyMatchTrend(request):
 
     if change_choice == 'actChange':
         date, postiveChange, negativeChange = actualValuechangev2(ticker, days, graphValue, pctChange)
-        DMT_values, DMT_dates = dailyMatchTrendSearch(ticker, negativeChange, postiveChange, graphValue)
-    
+        try:
+            DMT_values, DMT_dates = dailyMatchTrendSearch(ticker, negativeChange, postiveChange, graphValue)
+        except IndexError:
+            DMT_values, DMT_dates = "Try a smaller number of days", "Try a smaller number of days"
+
     if change_choice == 'pctChange':
         date, postiveChange, negativeChange = percentagechangev2(ticker, days, graphValue, pctChange)
 

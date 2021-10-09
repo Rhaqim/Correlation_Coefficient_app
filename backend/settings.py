@@ -15,6 +15,7 @@ import os
 import psycopg2
 import django_heroku
 from decouple import config
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -61,6 +62,9 @@ INSTALLED_APPS = [
 
     #cors
     'corsheaders',
+
+    #knox auth
+    'knox',
 ]
 
 MIDDLEWARE = [
@@ -173,6 +177,27 @@ AUTHENTICATION_BACKENDS = (
  #used for social authentications
  'allauth.account.auth_backends.AuthenticationBackend',
  )
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'knox.auth.TokenAuthentication',
+    )
+}
+
+REST_KNOX = {
+    'SECURE_HASH_ALGORITHM': 'cryptography.hazmat.primitives.hashes.SHA512',
+    'AUTH_TOKEN_CHARACTER_LENGTH': 64,
+    'TOKEN_TTL': timedelta(minutes=120),
+    'USER_SERIALIZER': 'knox.serializers.UserSerializer',
+    'TOKEN_LIMIT_PER_USER': None,
+    'AUTO_REFRESH': True,
+    "AUTH_HEADER_PREFIX": "Bearer",
+    "MIN_REFRESH_INTERVAL": 3600,
+}
 
 SITE_ID = 1
 
