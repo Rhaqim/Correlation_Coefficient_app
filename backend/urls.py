@@ -27,4 +27,6 @@ urlpatterns = [
 
     path('', include('PBSTAPP.urls')),
     path('authentication/', include('authentication.urls')),
+
+    path('accounts/', include('allauth.urls')),
 ]
