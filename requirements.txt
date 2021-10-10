@@ -35,9 +35,11 @@ hyperlink==21.0.0
 idna==2.10
 incremental==21.3.0
 itsdangerous==2.0.1
+Jinja2==3.0.2
 knox==0.1.14
 loguru==0.5.3
 Markdown==3.3.4
+MarkupSafe==2.0.1
 msgpack==1.0.2
 numpy==1.21.2
 oauthlib==3.1.1
