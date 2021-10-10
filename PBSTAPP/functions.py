@@ -1,5 +1,6 @@
 from .models import *
 from decouple import config
+import os
 from requests_cache.session import CachedSession
 import json
 import pandas as pd
@@ -8,8 +9,8 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 
-tokeniex = config('IEXTOKEN')
-token12 = config('TWELVEDATATOKEN')
+tokeniex = os.environ.get('IEXTOKEN')
+token12 = os.environ.get('TWELVEDATATOKEN')
 requests = CachedSession()
 
 
