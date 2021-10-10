@@ -248,8 +248,8 @@ CORS_ALLOWED_ORIGIN = [
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = os.environ.get('my_email1')
-# EMAIL_HOST_PASSWORD = os.environ.get('my_email_password1')
+# EMAIL_HOST_USER = config('my_email1')
+# EMAIL_HOST_PASSWORD = config('my_email_password1')
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
