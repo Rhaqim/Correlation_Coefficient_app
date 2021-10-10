@@ -112,6 +112,17 @@ DATABASES = {
     }
 }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('DB_NAME'),
+        'HOST': config('DB_HOST'),
+        'PORT': 5432,
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD')
+    }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -150,6 +161,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+STATIC_ROOT = "staticfiles"
 
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend', 'build', 'static')]
 
@@ -231,3 +248,12 @@ CORS_ALLOWED_ORIGIN = [
 # EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = config('my_email1')
 # EMAIL_HOST_PASSWORD = config('my_email_password1')
+
+# Activate Django-Heroku.
+django_heroku.settings(locals())
+
+DATABASE_URL = config('DATABASE_URL')
+
+conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
