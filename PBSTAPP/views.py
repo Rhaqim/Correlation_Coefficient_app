@@ -22,7 +22,6 @@ def Homepage(request):
     return Response(context)
 
 
-
 #General function 
 def generalPurpose(request, against):
     serializer_class = SearchSerializer
@@ -79,6 +78,69 @@ def generalPurpose(request, against):
     }
 
     return context
+
+@api_view(['GET', 'POST'])
+def Search_all_stock(request):
+    serializer_class = NameSearchSerializer
+    serializer = serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    name_query = serializer.data.get('name')
+
+    # ticker_names = (StockTickers.objects
+    #                 .filter(symbol__startswith=name_query)
+    #                 .values_list('name','exchange'))
+
+    ticker_names = (StockTickers.objects
+                    .filter(symbol__startswith=name_query)
+                    .values_list('symbol', 'name', 'exchange', 'country'))
+
+    context = {
+        'ticker_names': ticker_names,
+    }
+
+    return Response(context)
+
+@api_view(['GET', 'POST'])
+def Search_all_forex(request):
+    serializer_class = NameSearchSerializer
+    serializer = serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    name_query = serializer.data.get('name')
+
+    # ticker_names = (StockTickers.objects
+    #                 .filter(symbol__startswith=name_query)
+    #                 .values_list('name','exchange'))
+
+    ticker_names = (ForexTickers.objects
+                    .filter(symbol__startswith=name_query)
+                    .values_list('symbol', flat=True))
+
+    context = {
+        'ticker_names': ticker_names,
+    }
+
+    return Response(context)
+
+@api_view(['GET', 'POST'])
+def Search_all_crypto(request):
+    serializer_class = NameSearchSerializer
+    serializer = serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    name_query = serializer.data.get('name')
+
+    # ticker_names = (StockTickers.objects
+    #                 .filter(symbol__startswith=name_query)
+    #                 .values_list('name','exchange'))
+
+    ticker_names = (CryptoTickers.objects
+                    .filter(symbol__startswith=name_query)
+                    .values_list('symbol', flat=True))
+
+    context = {
+        'ticker_names': ticker_names,
+    }
+
+    return Response(context)
 
 
 @api_view(['GET'])
@@ -365,23 +427,6 @@ def PolyPredictions(request):
         'r_squared':r_squared,
         'ticker_date':ticker_date,
         'ticker_target':ticker_target,
-    }
-
-    return Response(context)
-
-@api_view(['GET', 'POST'])
-def autocomplete(request):
-    serializer_class = NameSearchSerializer
-    serializer = serializer_class(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    name_query = serializer.data.get('name')
-
-    ticker_names = (StockTickers.objects
-                    .filter(name__startswith=name_query)
-                    .values_list('name','exchange'))
-
-    context = {
-        'ticker_names': ticker_names,
     }
 
     return Response(context)

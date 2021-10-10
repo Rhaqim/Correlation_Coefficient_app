@@ -220,7 +220,8 @@ LOGIN_REDIRECT_URL = '/login'
 
 #cors allowed origins
 CORS_ALLOWED_ORIGIN = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://poorboystockstrends.netlify.app"
 ]
 
 #email handler
