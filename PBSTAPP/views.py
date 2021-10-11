@@ -1,4 +1,4 @@
-from PBSTAPP.serializers import BasePredSerializer, CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, ExchangeSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer, NameSearchSerializer
+from PBSTAPP.serializers import BasePredSerializer, CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, CryptoSerializer, DailyMatchtrendSerializer, ExchangeSerializer, ForexSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer, NameSearchSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USStockTicker
@@ -88,17 +88,13 @@ def Search_all_stock(request):
 
     # ticker_names = (StockTickers.objects
     #                 .filter(symbol__startswith=name_query)
-    #                 .values_list('name','exchange'))
+    #                 .values_list('symbol', 'name', 'exchange', 'country'))
 
-    ticker_names = (StockTickers.objects
-                    .filter(symbol__startswith=name_query)
-                    .values_list('symbol', 'name', 'exchange', 'country'))
+    ticker_names = (StockTickers.objects.all().filter(symbol__istartswith=name_query))
 
-    context = {
-        'ticker_names': ticker_names,
-    }
+    serializer_model = StockSerializer(ticker_names, many=True)
 
-    return Response(context)
+    return Response(serializer_model.data)
 
 @api_view(['GET', 'POST'])
 def Search_all_forex(request):
@@ -107,19 +103,15 @@ def Search_all_forex(request):
     serializer.is_valid(raise_exception=True)
     name_query = serializer.data.get('name')
 
-    # ticker_names = (StockTickers.objects
+    # ticker_names = (ForexTickers.objects
     #                 .filter(symbol__startswith=name_query)
-    #                 .values_list('name','exchange'))
+    #                 .values_list('symbol', flat=True))
 
-    ticker_names = (ForexTickers.objects
-                    .filter(symbol__startswith=name_query)
-                    .values_list('symbol', flat=True))
+    ticker_names = (ForexTickers.objects.all().filter(symbol__icontains=name_query))
 
-    context = {
-        'ticker_names': ticker_names,
-    }
+    serializer_model = ForexSerializer(ticker_names, many=True)
 
-    return Response(context)
+    return Response(serializer_model.data)
 
 @api_view(['GET', 'POST'])
 def Search_all_crypto(request):
@@ -128,19 +120,15 @@ def Search_all_crypto(request):
     serializer.is_valid(raise_exception=True)
     name_query = serializer.data.get('name')
 
-    # ticker_names = (StockTickers.objects
+    # ticker_names = (CryptoTickers.objects
     #                 .filter(symbol__startswith=name_query)
-    #                 .values_list('name','exchange'))
+    #                 .values_list('symbol', flat=True))
 
-    ticker_names = (CryptoTickers.objects
-                    .filter(symbol__startswith=name_query)
-                    .values_list('symbol', flat=True))
+    ticker_names = (CryptoTickers.objects.all().filter(symbol__icontains=name_query))
 
-    context = {
-        'ticker_names': ticker_names,
-    }
+    serializer_model = CryptoSerializer(ticker_names, many=True)
 
-    return Response(context)
+    return Response(serializer_model.data)
 
 
 @api_view(['GET'])
