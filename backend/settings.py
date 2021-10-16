@@ -238,9 +238,9 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = '/login'
 
 #cors allowed origins
-CORS_ALLOWED_ORIGIN = [
-    "http://localhost:3000",
-    "https://poorboystockstrends.netlify.app"
+CORS_ALLOWED_ORIGINS = [
+    "https://poorboystockstrends.netlify.app",
+    "http://127.0.0.1:3000",
 ]
 
 #email handler
