@@ -699,7 +699,7 @@ def tweleveDataTimeseriesApiCallv2(symbol, output):
 
     return data
 
-def percentagechangev2(symbol, output, hloc, pctChange):
+def percentagechangev2(symbol, output:int, hloc, pctChange:int):
     import pandas as pd
 
     data = tweleveDataTimeseriesApiCallv2(symbol=symbol, output=output) #external api with outputsize instead of date
@@ -762,28 +762,6 @@ def actualValuechangev2(symbol, output, hloc, pctChange):
     negativeChange = [x - y for x, y in zip(thelist, discount)]
 
     return data2, postiveChange, negativeChange
-
-# def changeResults(symbol, start, end, hloc, days):
-#     import yfinance as yf
-
-
-#     ticker = yf.Ticker(symbol)
-
-#     historical = ticker.history(period="max")
-
-#     data = historical[hloc]
-
-#     offset = days + 7
-
-# def validate(value, merger):
-#     is_between = []
-#     for r in merger:
-#         if r[0] <= value <= r[1]:
-#             is_between.append(value)
-#         else:
-#             pass
-
-#     return is_between
 
 
 def changeResultsv2(symbol, start, stop, hloc):
@@ -1197,7 +1175,7 @@ def dailyMatchTrendSearch(symbol, start, stop, hloc):
                 break
 
         if NumOfDays == 6:
-            if enum_merge[0][1][0] < first < enum_merge[0][1][1] and enum_merge[1][1][0] < second < enum_merge[1][1][1] and enum_merge[2][1][0] < third < enum_merge[2][1][1] and enum_merge[3][1][0] < fourth < enum_merge[3][1][1] and enum_merge[4][1][0] < fifth < enum_merge[4][1][1]:
+            if enum_merge[0][1][0] < first < enum_merge[0][1][1] and enum_merge[1][1][0] < second < enum_merge[1][1][1] and enum_merge[2][1][0] < third < enum_merge[2][1][1] and enum_merge[3][1][0] < fourth < enum_merge[3][1][1] and enum_merge[4][1][0] < fifth < enum_merge[4][1][1] and enum_merge[5][1][0] < sixth < enum_merge[5][1][1]:
                 checking["first"] = first
                 checking["second"] = second
                 checking["third"] = third
@@ -1231,5 +1209,284 @@ def dailyMatchTrendSearch(symbol, start, stop, hloc):
                 checking_dates["sixth_date"] = sixth_date
                 checking_dates["seventh_date"] = seventh_date
                 break
+
+    return checking, checking_dates
+
+def PCTdailyMatchTrendSearch(symbol, start, stop, hloc):
+    import datetime as dt
+
+    startdate = earliest_timestand(symbol)
+
+    enddate = dt.date.today()
+
+    NumOfDays = len(start)
+
+    offset = NumOfDays + 7
+
+    historical = {}
+
+    dates = []
+
+    # targets = []
+
+    data, targets = percentagechange(symbol, startdate, enddate, hloc)
+
+    for items in data.get('values'):
+        dates.append(items["datetime"])
+    #     # targets.append(float(items[hloc]))
+
+    targets = targets[::-1]
+    dates = dates[::-1]
+
+    targets = targets[offset -1:]
+    targets = [i * 100 for i in targets]
+    dates = dates[offset -1:]
+
+    historical["Dates"] = dates
+    historical["targets"] = targets
+
+    merge = [[x]+[y] for x, y in zip(start, stop)] #combine start and stop into lists
+
+    enum_merge = list(enumerate(merge)) #enum list to help indexing
+
+    if NumOfDays == 2:
+        one_ = enum_merge[0][1]
+        two_ = enum_merge[1][1]
+
+        one_sorted = sorted(one_)
+        two_sorted = sorted(two_)
+
+    if NumOfDays == 3:
+        one_ = enum_merge[0][1]
+        two_ = enum_merge[1][1]
+        three_ = enum_merge[2][1]
+
+        one_sorted = sorted(one_)
+        two_sorted = sorted(two_)
+        three_sorted = sorted(three_)
+
+    if NumOfDays == 4:
+        one_ = enum_merge[0][1]
+        two_ = enum_merge[1][1]
+        three_ = enum_merge[2][1]
+        four_ = enum_merge[3][1]
+
+        one_sorted = sorted(one_)
+        two_sorted = sorted(two_)
+        three_sorted = sorted(three_)
+        four_sorted = sorted(four_)
+
+    if NumOfDays == 5:
+        one_ = enum_merge[0][1]
+        two_ = enum_merge[1][1]
+        three_ = enum_merge[2][1]
+        four_ = enum_merge[3][1]
+        five_ = enum_merge[4][1]
+
+        one_sorted = sorted(one_)
+        two_sorted = sorted(two_)
+        three_sorted = sorted(three_)
+        four_sorted = sorted(four_)
+        five_sorted = sorted(five_)
+
+    if NumOfDays == 6:
+        one_ = enum_merge[0][1]
+        two_ = enum_merge[1][1]
+        three_ = enum_merge[2][1]
+        four_ = enum_merge[3][1]
+        five_ = enum_merge[4][1]
+        six_ = enum_merge[5][1]
+
+        one_sorted = sorted(one_)
+        two_sorted = sorted(two_)
+        three_sorted = sorted(three_)
+        four_sorted = sorted(four_)
+        five_sorted = sorted(five_)
+        six_sorted = sorted(six_)
+
+    if NumOfDays == 7:
+        one_ = enum_merge[0][1]
+        two_ = enum_merge[1][1]
+        three_ = enum_merge[2][1]
+        four_ = enum_merge[3][1]
+        five_ = enum_merge[4][1]
+        six_ = enum_merge[5][1]
+        seven_ = enum_merge[6][1]
+
+        one_sorted = sorted(one_)
+        two_sorted = sorted(two_)
+        three_sorted = sorted(three_)
+        four_sorted = sorted(four_)
+        five_sorted = sorted(five_)
+        six_sorted = sorted(six_)
+        seven_sorted = sorted(seven_)
+
+    checking = {}
+
+    checking_dates = {}
+
+    for i in range(len(targets)):
+
+        if NumOfDays == 2:
+            first = targets[i]
+            second = targets[i + 1]
+
+            first_date = dates[i]
+            second_date = dates[i + 1]
+
+            if one_sorted[0] < first < one_sorted[1] and two_sorted[0] < second < two_sorted[1]:
+                checking["first"] = first
+                checking["second"] = second
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                break
+            # else:
+            #     return "NO MATCHES FOUND"
+
+        if NumOfDays == 3:
+            first = targets[i]
+            second = targets[i + 1]
+            third = targets[i + 2]
+
+            first_date = dates[i]
+            second_date = dates[i + 1]
+            third_date = dates[i + 2]
+
+            if one_sorted[0] < first < one_sorted[1] and two_sorted[0] < second < two_sorted[1] and three_sorted[0] < third < three_sorted[1]:
+                checking["first"] = first
+                checking["second"] = second
+                checking["third"] = third
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                checking_dates["third_date"] = third_date
+                break
+            # else:
+            #     return "NO MATCHES FOUND, TRY A SMALLER NUMBER OF DAYS"
+
+        if NumOfDays == 4:
+            first = targets[i]
+            second = targets[i + 1]
+            third = targets[i + 2]
+            fourth = targets[i + 3]
+
+            first_date = dates[i]
+            second_date = dates[i + 1]
+            third_date = dates[i + 2]
+            fourth_date = dates[i + 3]
+            
+            if one_sorted[0] < first < one_sorted[1] and two_sorted[0] < second < two_sorted[1] and three_sorted[0] < third < three_sorted[1] and four_sorted[0] < fourth < four_sorted[1]:
+                checking["first"] = first
+                checking["second"] = second
+                checking["third"] = third
+                checking["fourth"] = fourth
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                checking_dates["third_date"] = third_date
+                checking_dates["fourth_date"] = fourth_date
+                break
+            # else:
+            #     return "NO MATCHES FOUND, TRY A SMALLER NUMBER OF DAYS"
+
+        if NumOfDays == 5:
+            first = targets[i]
+            second = targets[i + 1]
+            third = targets[i + 2]
+            fourth = targets[i + 3]
+            fifth = targets[i + 4]
+
+            first_date = dates[i]
+            second_date = dates[i + 1]
+            third_date = dates[i + 2]
+            fourth_date = dates[i + 3]
+            fifth_date = dates[i + 4]
+
+            if one_sorted[0] < first < one_sorted[1] and two_sorted[0] < second < two_sorted[1] and three_sorted[0] < third < three_sorted[1] and four_sorted[0] < fourth < four_sorted[1] and five_sorted[0] < fifth < five_sorted[1]:
+                checking["first"] = first
+                checking["second"] = second
+                checking["third"] = third
+                checking["fourth"] = fourth
+                checking["fifth"] = fifth
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                checking_dates["third_date"] = third_date
+                checking_dates["fourth_date"] = fourth_date
+                checking_dates["fifth_date"] = fifth_date
+                break
+            # else:
+            #     return "NO MATCHES FOUND, TRY A SMALLER NUMBER OF DAYS"
+
+        if NumOfDays == 6:
+            first = targets[i]
+            second = targets[i + 1]
+            third = targets[i + 2]
+            fourth = targets[i + 3]
+            fifth = targets[i + 4]
+            sixth = targets[i + 5]
+
+            first_date = dates[i]
+            second_date = dates[i + 1]
+            third_date = dates[i + 2]
+            fourth_date = dates[i + 3]
+            fifth_date = dates[i + 4]
+            sixth_date = dates[i + 5]
+
+            if one_sorted[0] < first < one_sorted[1] and two_sorted[0] < second < two_sorted[1] and three_sorted[0] < third < three_sorted[1] and four_sorted[0] < fourth < four_sorted[1] and five_sorted[0] < fifth < five_sorted[1] and six_sorted[0] < sixth < six_sorted[1]:
+                checking["first"] = first
+                checking["second"] = second
+                checking["third"] = third
+                checking["fourth"] = fourth
+                checking["fifth"] = fifth
+                checking["sixth"] = sixth
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                checking_dates["third_date"] = third_date
+                checking_dates["fourth_date"] = fourth_date
+                checking_dates["fifth_date"] = fifth_date
+                checking_dates["sixth_date"] = sixth_date
+                break
+            # else:
+            #     return "NO MATCHES FOUND, TRY A SMALLER NUMBER OF DAYS"
+
+        if NumOfDays == 7:
+            first = targets[i]
+            second = targets[i + 1]
+            third = targets[i + 2]
+            fourth = targets[i + 3]
+            fifth = targets[i + 4]
+            sixth = targets[i + 5]
+            seventh = targets[i + 6]
+
+            first_date = dates[i]
+            second_date = dates[i + 1]
+            third_date = dates[i + 2]
+            fourth_date = dates[i + 3]
+            fifth_date = dates[i + 4]
+            sixth_date = dates[i + 5]
+            seventh_date = dates[i + 6]
+
+            if one_sorted[0] < first < one_sorted[1] and two_sorted[0] < second < two_sorted[1] and three_sorted[0] < third < three_sorted[1] and four_sorted[0] < fourth < four_sorted[1] and five_sorted[0] < fifth < five_sorted[1] and six_sorted[0] < sixth < six_sorted[1] and seven_sorted[0] < seventh < seven_sorted[1]:
+                checking["first"] = first
+                checking["second"] = second
+                checking["third"] = third
+                checking["fourth"] = fourth
+                checking["fifth"] = fifth
+                checking["sixth"] = sixth
+                checking["seventh"] = seventh
+
+                checking_dates["first_date"] = first_date
+                checking_dates["second_date"] = second_date
+                checking_dates["third_date"] = third_date
+                checking_dates["fourth_date"] = fourth_date
+                checking_dates["fifth_date"] = fifth_date
+                checking_dates["sixth_date"] = sixth_date
+                checking_dates["seventh_date"] = seventh_date
+                break
+            # else:
+            #     return "NO MATCHES FOUND, TRY A SMALLER NUMBER OF DAYS"
 
     return checking, checking_dates
