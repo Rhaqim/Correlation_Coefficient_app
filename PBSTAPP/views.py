@@ -2,6 +2,7 @@ from PBSTAPP.serializers import BasePredSerializer, CorrelationSerializer, Count
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USStockTicker
+from django.db.models import Q
 from decouple import config
 from requests_cache.session import CachedSession
 from .functions import LogPredictions, PCTdailyMatchTrendSearch, actualValuechangev2, dailyMatchTrendSearch, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction, ExponRegressPrediction, polyPredictions
@@ -94,7 +95,7 @@ def Search_all_stock(request):
         #                 .filter(symbol__startswith=name_query)
         #                 .values_list('symbol', 'name', 'exchange', 'country'))
 
-        ticker_names = (StockTickers.objects.all().filter(symbol__istartswith=name_query))
+        ticker_names = (StockTickers.objects.all().filter(Q(symbol__istartswith=name_query) | Q(name__icontains=name_query)))
 
         serializer_model = StockSerializer(ticker_names, many=True)
 
@@ -115,7 +116,7 @@ def Search_all_forex(request):
     #                 .filter(symbol__startswith=name_query)
     #                 .values_list('symbol', flat=True))
 
-        ticker_names = (ForexTickers.objects.all().filter(symbol__icontains=name_query))
+        ticker_names = (ForexTickers.objects.all().filter(Q(symbol__icontains=name_query) | Q(currency_quote__icontains=name_query) | Q(currency_base__icontains=name_query)))
 
         serializer_model = ForexSerializer(ticker_names, many=True)
 
@@ -136,7 +137,7 @@ def Search_all_crypto(request):
     #                 .filter(symbol__startswith=name_query)
     #                 .values_list('symbol', flat=True))
 
-        ticker_names = (CryptoTickers.objects.all().filter(symbol__icontains=name_query))
+        ticker_names = (CryptoTickers.objects.all().filter(Q(symbol__icontains=name_query) | Q(currency_quote__icontains=name_query) | Q(currency_base__icontains=name_query)))
 
         serializer_model = CryptoSerializer(ticker_names, many=True)
 
