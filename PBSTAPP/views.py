@@ -89,13 +89,36 @@ def Search_all_stock(request):
 
     if request.method == "GET":
 
-        name_query = request.GET.get('name')
+        name_query = request.GET.get('name', None)
+        country_query = request.GET.get('country', None)
+        exchange_query = request.GET.get('exchange', None)
 
         # ticker_names = (StockTickers.objects
         #                 .filter(symbol__startswith=name_query)
         #                 .values_list('symbol', 'name', 'exchange', 'country'))
 
-        ticker_names = (StockTickers.objects.all().filter(Q(symbol__istartswith=name_query) | Q(name__icontains=name_query)))
+        if country_query != None:
+            country = (StockTickers.objects.all().filter(Q(country__icontains=country_query)))
+
+            ticker_names = (country.filter(Q(symbol__istartswith=name_query) | Q(name__istartswith=name_query)))
+
+            if exchange_query != None:
+                exchange = (country.filter(Q(exchange__istartswith=exchange_query)))
+
+                ticker_names = (exchange.filter(Q(symbol__istartswith=name_query) | Q(name__istartswith=name_query)))
+
+        elif exchange_query != None:
+            exchange = (StockTickers.objects.all().filter(Q(exchange__icontains=exchange_query)))
+
+            ticker_names = (exchange.filter(Q(symbol__istartswith=name_query) | Q(name__istartswith=name_query)))
+
+            if country_query != None:
+                country = (exchange.filter(Q(country__istartswith=country_query)))
+
+                ticker_names = (country.filter(Q(symbol__istartswith=name_query) | Q(name__istartswith=name_query)))
+
+        else:
+            ticker_names = (StockTickers.objects.all().filter(Q(symbol__istartswith=name_query) | Q(name__istartswith=name_query)))
 
         serializer_model = StockSerializer(ticker_names, many=True)
 
