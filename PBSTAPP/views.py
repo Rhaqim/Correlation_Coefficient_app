@@ -327,8 +327,19 @@ def Correlation(request):
 
     ans = getcorr(base_ticker, compare_tickers, startDate, endDate , graphValue)
 
+    positivelyCorrelated = {}
+    negativelyCorrelated = {}
+
+    for key, value in ans.items():
+        if value >= 0:
+            positivelyCorrelated[key] = value
+        else:
+            negativelyCorrelated[key] = value
+
     context = {
-        "correlation":ans
+        "correlation":ans,
+        "positivelyCorrelated":positivelyCorrelated,
+        "negativelyCorrelated":negativelyCorrelated
     }
 
     return Response(context)
