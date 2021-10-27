@@ -325,21 +325,12 @@ def Correlation(request):
     #     endDate = request.GET.get('endDate')
     #     graphValue = request.GET.get('graphValue')
 
-    ans = getcorr(base_ticker, compare_tickers, startDate, endDate , graphValue)
-
-    positivelyCorrelated = {}
-    negativelyCorrelated = {}
-
-    for key, value in ans.items():
-        if value >= 0:
-            positivelyCorrelated[key] = value
-        else:
-            negativelyCorrelated[key] = value
+    ans, positivelyCorrelated, negativelyCorrelated = getcorr(base_ticker, compare_tickers, startDate, endDate , graphValue)
 
     context = {
         "correlation":ans,
         "positivelyCorrelated":positivelyCorrelated,
-        "negativelyCorrelated":negativelyCorrelated
+        "negativelyCorrelated":negativelyCorrelated,
     }
 
     return Response(context)
@@ -434,11 +425,12 @@ def ExponPrediction(request):
     # endDate = request.GET.get('endDate')
     # graphValue = request.GET.get('graphValue')
 
-    formula_data, r_squared, ticker_date, ticker_target = ExponRegressPrediction(ticker, graphValue, startDate, endDate)
+    formula_data, r_squared, ticker_date, ticker_target, p = ExponRegressPrediction(ticker, graphValue, startDate, endDate)
 
     context = {
         'formula_data':formula_data,
         'r_squared':r_squared,
+        "formula":str(p),
         'ticker_date':ticker_date,
         'ticker_target':ticker_target,
     }
@@ -463,11 +455,12 @@ def LogPrediction(request):
     #     endDate = request.GET.get('endDate')
     #     graphValue = request.GET.get('graphValue')
 
-    formula_data, r_squared, ticker_date, ticker_target = LogPredictions(ticker, graphValue, startDate, endDate)
+    formula_data, r_squared, ticker_date, ticker_target, p = LogPredictions(ticker, graphValue, startDate, endDate)
 
     context = {
         'formula_data':formula_data,
         'r_squared':r_squared,
+        "formula":str(p),
         'ticker_date':ticker_date,
         'ticker_target':ticker_target,
     }
@@ -495,11 +488,12 @@ def PolyPredictions(request):
     #     graphValue = request.GET.get('graphValue')
     #     power = request.GET.get('power')
 
-    formula_data, r_squared, ticker_date, ticker_target = polyPredictions(ticker, graphValue, startDate, endDate, power)
+    formula_data, r_squared, ticker_date, ticker_target, p = polyPredictions(ticker, graphValue, startDate, endDate, power)
 
     context = {
         'formula_data':formula_data,
         'r_squared':r_squared,
+        "formula":str(p),
         'ticker_date':ticker_date,
         'ticker_target':ticker_target,
     }

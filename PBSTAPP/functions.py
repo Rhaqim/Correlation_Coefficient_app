@@ -10,7 +10,7 @@ from scipy.optimize import curve_fit
 
 
 tokeniex = os.environ.get('IEXTOKEN')
-token12 = os.environ.get('TWELVEDATATOKEN')
+token12 = config('TWELVEDATATOKEN')
 requests = CachedSession()
 
 
@@ -563,7 +563,31 @@ def getcorr(base_ticker, compare_tickers, startDate, endDate , graphValue):
     
     ans = {k: v for k, v in sorted(res.items(), key=lambda item: item[1], reverse=True)} #sort list in ascendinf order
 
-    return ans
+    positivelyCorrelated = {}
+    negativelyCorrelated = {}
+
+    for key, value in ans.items():
+        if value >= 0:
+            positivelyCorrelated[key] = value
+        else:
+            negativelyCorrelated[key] = value
+    
+    finalpositive = {}
+    finalnegative = {}
+
+    for key, value in positivelyCorrelated.items():
+        if 0 <= value <= 1:
+            finalpositive[key] = value
+        else:
+            pass
+
+    for key, value in negativelyCorrelated.items():
+        if -1 <= value <= 0:
+            finalnegative[key] = value
+        else:
+            pass
+
+    return ans, finalpositive, finalnegative
 
 def stockAnalysisV1(Base_Symbol, startdate, enddate, hloc):
     
@@ -868,7 +892,7 @@ def PowerRegressPrediction(symbol, hloc, power:int, startdate, enddate):
     # return results, p, dates, targets
     return results, p, historical
 
-
+# LINEAR, EXPONENTIAL, POLY AND LOGRTHMIC REGRESSIONS
 def ExponRegressPrediction(symbol, hloc, startdate, enddate):
     
     data = tweleveDataTimeseriesApiCall(symbol, startdate, enddate)
@@ -916,12 +940,14 @@ def ExponRegressPrediction(symbol, hloc, startdate, enddate):
 
     popt, pcov = curve_fit(func, x, y)
 
+    p = np.poly1d(popt)
+
     residuals = y - func(x, *popt)
     ss_res = np.sum(residuals**2)
     ss_tot = np.sum((y-np.mean(y))**2)
     r_squared = 1 - (ss_res / ss_tot)
 
-    return popt, r_squared, dates, targets
+    return popt, r_squared, dates, targets, p
 
 
 def polyPredictions(symbol, hloc, startdate, enddate, power:int):
@@ -995,7 +1021,7 @@ def polyPredictions(symbol, hloc, startdate, enddate, power:int):
     sstot = np.sum((y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
     r_squared = ssreg / sstot
 
-    return popt, r_squared, dates, targets
+    return popt, r_squared, dates, targets, p
 
 
 def LogPredictions(symbol, hloc, startdate, enddate):
@@ -1040,12 +1066,14 @@ def LogPredictions(symbol, hloc, startdate, enddate):
 
     popt, pcov = curve_fit(func, x, y)
 
+    p = np.poly1d(popt)
+
     residuals = y - func(x, *popt)
     ss_res = np.sum(residuals**2)
     ss_tot = np.sum((y-np.mean(y))**2)
     r_squared = 1 - (ss_res / ss_tot)
 
-    return popt, r_squared, dates, targets
+    return popt, r_squared, dates, targets, p
 
 #Daily Match Trend
 def earliest_timestand(symbol):
