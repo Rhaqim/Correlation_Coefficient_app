@@ -80,6 +80,7 @@ def generalPurpose(request, against):
 
     return context
 
+#DATABASE QUERY FUNCTIONS
 @api_view(['GET'])
 def Search_all_stock(request):
     # serializer_class = NameSearchSerializer
@@ -165,6 +166,25 @@ def Search_all_crypto(request):
         serializer_model = CryptoSerializer(ticker_names, many=True)
 
         return Response(serializer_model.data)
+
+@api_view(['GET'])
+def search_exchanges(request):
+    if request.method == "GET":
+
+        country_query = request.GET.get('country', None)
+
+        # ticker_names = (StockTickers.objects
+        #                 .filter(symbol__startswith=name_query)
+        #                 .values_list('symbol', 'name', 'exchange', 'country'))
+
+        query_values = (StockTickers.objects.all().filter(Q(country__icontains=country_query)).values_list('exchange'))
+
+        inter_m = set(query_values)
+
+        exchanges = list(inter_m)
+
+        return Response(exchanges)
+
 
 
 @api_view(['GET'])
@@ -358,25 +378,32 @@ def DailyMatchTrend(request):
 
     if change_choice == 'actChange':
         date, postiveChange, negativeChange = actualValuechangev2(ticker, int(days), graphValue, int(pctChange))
+        
         try:
             DMT_values, DMT_dates = dailyMatchTrendSearch(ticker, negativeChange, postiveChange, graphValue)
+        
         except IndexError:
             DMT_values, DMT_dates = "Try a smaller number of days or a different Percentgae Change", "Try a smaller number of days or a different Percentgae Change"
 
     if change_choice == 'pctChange':
         days = days + 1
         date, postiveChange, negativeChange = percentagechangev2(ticker, int(days), graphValue, int(pctChange))
+        
         try:
             DMT_values, DMT_dates = PCTdailyMatchTrendSearch(ticker, negativeChange, postiveChange, graphValue)
+        
         except IndexError:
             DMT_values, DMT_dates = "Try a smaller number of days or a different Percentgae Change", "Try a smaller number of days or a different Percentgae Change"
 
+    positive_ = postiveChange[::-1]
+    negative_ = negativeChange[::-1]
+
     context = {
-        'positive': postiveChange[::-1],
-        'negative': negativeChange[::-1],
-        'DMT_values':DMT_values,
-        'DMT_dates':DMT_dates,
         'date':date,
+        'positive': positive_,
+        'negative': negative_,
+        'DMT_dates':DMT_dates,
+        'DMT_values':DMT_values,        
     }
 
     return Response(context)
