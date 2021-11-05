@@ -33,6 +33,16 @@ class StockSerializer(serializers.ModelSerializer):
         model = StockTickers
         fields = '__all__'
 
+class CryptoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CryptoTickers
+        fields = '__all__'
+
+class ForexSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ForexTickers
+        fields = '__all__'
+
 #FEATURES SERIALIZERS
 
 #HLOC CHOICES

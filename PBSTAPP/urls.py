@@ -20,6 +20,7 @@ urlpatterns = [
     path('v2/search_stock', views.Search_all_stock),
     path('v2/search_forex', views.Search_all_forex),
     path('v2/search_crypto', views.Search_all_crypto),
+    path('v2/search_exchanges', views.search_exchanges),
 
     path('v2/DMT', views.DailyMatchTrend),
     path('v2/correlation', views.Correlation),

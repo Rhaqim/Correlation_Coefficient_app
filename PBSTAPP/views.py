@@ -1,10 +1,12 @@
-from PBSTAPP.serializers import BasePredSerializer, CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, DailyMatchtrendSerializer, ExchangeSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer, NameSearchSerializer
+from rest_framework.fields import set_value
+from PBSTAPP.serializers import BasePredSerializer, CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, CryptoSerializer, DailyMatchtrendSerializer, ExchangeSerializer, ForexSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer, NameSearchSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import ForexTickers, CryptoTickers, IndexTickers, StockTickers, USStockTicker
+from django.db.models import Q
 from decouple import config
 from requests_cache.session import CachedSession
-from .functions import LogPredictions, actualValuechangev2, dailyMatchTrendSearch, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction, ExponRegressPrediction, polyPredictions
+from .functions import LogPredictions, PCTdailyMatchTrendSearch, actualValuechangev2, dailyMatchTrendSearch, percentagechange, correlationcoefficient, get_client_ip, get_geolocation_for_ip, get_corresponding_currency, percentagechangev2, getcorr, PowerRegressPrediction, ExponRegressPrediction, polyPredictions
 import json
 
 requests = CachedSession()
@@ -79,68 +81,111 @@ def generalPurpose(request, against):
 
     return context
 
-@api_view(['GET', 'POST'])
+#DATABASE QUERY FUNCTIONS
+@api_view(['GET'])
 def Search_all_stock(request):
-    serializer_class = NameSearchSerializer
-    serializer = serializer_class(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    name_query = serializer.data.get('name')
+    # serializer_class = NameSearchSerializer
+    # serializer = serializer_class(data=request.data)
+    # serializer.is_valid(raise_exception=True)
+    # name_query = serializer.data.get('name')
 
-    # ticker_names = (StockTickers.objects
-    #                 .filter(symbol__startswith=name_query)
-    #                 .values_list('name','exchange'))
+    if request.method == "GET":
 
-    ticker_names = (StockTickers.objects
-                    .filter(symbol__startswith=name_query)
-                    .values_list('symbol', 'name', 'exchange', 'country'))
+        name_query = request.GET.get('name', None)
+        country_query = request.GET.get('country', None)
+        exchange_query = request.GET.get('exchange', None)
 
-    context = {
-        'ticker_names': ticker_names,
-    }
+        # ticker_names = (StockTickers.objects
+        #                 .filter(symbol__startswith=name_query)
+        #                 .values_list('symbol', 'name', 'exchange', 'country'))
 
-    return Response(context)
+        if country_query != None:
+            country = (StockTickers.objects.all().filter(Q(country__icontains=country_query)))
 
-@api_view(['GET', 'POST'])
+            ticker_names = (country.filter(Q(symbol__istartswith=name_query) | Q(name__istartswith=name_query)))
+
+            if exchange_query != None:
+                exchange = (country.filter(Q(exchange__istartswith=exchange_query)))
+
+                ticker_names = (exchange.filter(Q(symbol__istartswith=name_query) | Q(name__istartswith=name_query)))
+
+        elif exchange_query != None:
+            exchange = (StockTickers.objects.all().filter(Q(exchange__icontains=exchange_query)))
+
+            ticker_names = (exchange.filter(Q(symbol__istartswith=name_query) | Q(name__istartswith=name_query)))
+
+            if country_query != None:
+                country = (exchange.filter(Q(country__istartswith=country_query)))
+
+                ticker_names = (country.filter(Q(symbol__istartswith=name_query) | Q(name__istartswith=name_query)))
+
+        else:
+            ticker_names = (StockTickers.objects.all().filter(Q(symbol__istartswith=name_query) | Q(name__istartswith=name_query)))
+
+        serializer_model = StockSerializer(ticker_names, many=True)
+
+        return Response(serializer_model.data)
+
+@api_view(['GET'])
 def Search_all_forex(request):
-    serializer_class = NameSearchSerializer
-    serializer = serializer_class(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    name_query = serializer.data.get('name')
+    # serializer_class = NameSearchSerializer
+    # serializer = serializer_class(data=request.data)
+    # serializer.is_valid(raise_exception=True)
+    # name_query = serializer.data.get('name')
 
-    # ticker_names = (StockTickers.objects
+    if request.method == "GET":
+
+        name_query = request.GET.get('name')
+
+    # ticker_names = (ForexTickers.objects
     #                 .filter(symbol__startswith=name_query)
-    #                 .values_list('name','exchange'))
+    #                 .values_list('symbol', flat=True))
 
-    ticker_names = (ForexTickers.objects
-                    .filter(symbol__startswith=name_query)
-                    .values_list('symbol', flat=True))
+        ticker_names = (ForexTickers.objects.all().filter(Q(symbol__icontains=name_query) | Q(currency_quote__icontains=name_query) | Q(currency_base__icontains=name_query)))
 
-    context = {
-        'ticker_names': ticker_names,
-    }
+        serializer_model = ForexSerializer(ticker_names, many=True)
 
-    return Response(context)
+        return Response(serializer_model.data)
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def Search_all_crypto(request):
-    serializer_class = NameSearchSerializer
-    serializer = serializer_class(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    name_query = serializer.data.get('name')
+    # serializer_class = NameSearchSerializer
+    # serializer = serializer_class(data=request.data)
+    # serializer.is_valid(raise_exception=True)
+    # name_query = serializer.data.get('name')
 
-    # ticker_names = (StockTickers.objects
+    if request.method == "GET":
+
+        name_query = request.GET.get('name')
+
+    # ticker_names = (CryptoTickers.objects
     #                 .filter(symbol__startswith=name_query)
-    #                 .values_list('name','exchange'))
+    #                 .values_list('symbol', flat=True))
 
-    ticker_names = (CryptoTickers.objects
-                    .filter(symbol__startswith=name_query)
-                    .values_list('symbol', flat=True))
+        ticker_names = (CryptoTickers.objects.all().filter(Q(symbol__icontains=name_query) | Q(currency_quote__icontains=name_query) | Q(currency_base__icontains=name_query)))
 
-    context = {
-        'ticker_names': ticker_names,
-    }
+        serializer_model = CryptoSerializer(ticker_names, many=True)
 
-    return Response(context)
+        return Response(serializer_model.data)
+
+@api_view(['GET'])
+def search_exchanges(request):
+    if request.method == "GET":
+
+        country_query = request.GET.get('country', None)
+
+        # ticker_names = (StockTickers.objects
+        #                 .filter(symbol__startswith=name_query)
+        #                 .values_list('symbol', 'name', 'exchange', 'country'))
+
+        query_values = (StockTickers.objects.all().filter(Q(country__icontains=country_query)).values_list('exchange'))
+
+        inter_m = set(query_values)
+
+        exchanges = list(inter_m)
+
+        return Response(exchanges)
+
 
 
 @api_view(['GET'])
@@ -294,11 +339,19 @@ def Correlation(request):
     startDate = serializer.data.get('startDate')
     endDate = serializer.data.get('endDate')
     graphValue = serializer.data.get('graphValue')
+    # if request.method == "GET":
+    #     base_ticker = request.GET.get('base_ticker')
+    #     compare_tickers = request.GET.get('compare_tickers')
+    #     startDate = request.GET.get('startDate')
+    #     endDate = request.GET.get('endDate')
+    #     graphValue = request.GET.get('graphValue')
 
-    ans = getcorr(base_ticker, compare_tickers, startDate, endDate , graphValue)
+    ans, positivelyCorrelated, negativelyCorrelated = getcorr(base_ticker, compare_tickers, startDate, endDate , graphValue)
 
     context = {
-        "correlation":ans
+        "correlation":ans,
+        "positivelyCorrelated":positivelyCorrelated,
+        "negativelyCorrelated":negativelyCorrelated,
     }
 
     return Response(context)
@@ -316,22 +369,103 @@ def DailyMatchTrend(request):
     pctChange = serializer.data.get('percentageChange')
     change_choice = serializer.data.get('change_choice')
 
+    # if request.method == "GET":
+
+    #     ticker = request.GET.get('ticker')
+    #     days = request.GET.get('numberOfDays')
+    #     graphValue = request.GET.get('graphValue')
+    #     pctChange = request.GET.get('percentageChange')
+    #     change_choice = request.GET.get('change_choice')
+
     if change_choice == 'actChange':
-        date, postiveChange, negativeChange = actualValuechangev2(ticker, days, graphValue, pctChange)
+        date, postiveChange, negativeChange = actualValuechangev2(ticker, int(days), graphValue, int(pctChange))
+        
         try:
             DMT_values, DMT_dates = dailyMatchTrendSearch(ticker, negativeChange, postiveChange, graphValue)
+        
         except IndexError:
-            DMT_values, DMT_dates = "Try a smaller number of days", "Try a smaller number of days"
+            DMT_values, DMT_dates = "Try a smaller number of days or a different Percentgae Change", "Try a smaller number of days or a different Percentgae Change"
 
     if change_choice == 'pctChange':
-        date, postiveChange, negativeChange = percentagechangev2(ticker, days, graphValue, pctChange)
+        days = days + 1
+        date, postiveChange, negativeChange = percentagechangev2(ticker, int(days), graphValue, int(pctChange))
+        date.pop()
+        
+        try:
+            DMT_values, DMT_dates = PCTdailyMatchTrendSearch(ticker, negativeChange, postiveChange, graphValue)
+        
+        except IndexError:
+            DMT_values, DMT_dates = "Try a smaller number of days or a different Percentgae Change", "Try a smaller number of days or a different Percentgae Change"
 
+    positive_ = postiveChange[::-1]
+    negative_ = negativeChange[::-1]
+
+    datetime = []
+    hloc_values = []
+
+    for items in date:
+        datetime.append(items['datetime'])
+        hloc_values.append(items[graphValue])
+
+    first_day = []
+    second_day = []
+    third_day = []
+    fourth_day = []
+    fifth_day = []
+    sixth_day = []
+    seventh_day = []
+
+    for i in range(len(datetime)):
+        if i == 0:
+            first_day.append(datetime[i])
+            first_day.append(hloc_values[i])
+            first_day.append(positive_[i])
+            first_day.append(negative_[i])
+        if i == 1:
+            second_day.append(datetime[i])
+            second_day.append(hloc_values[i])
+            second_day.append(positive_[i])
+            second_day.append(negative_[i])
+        if i == 2:
+            third_day.append(datetime[i])
+            third_day.append(hloc_values[i])
+            third_day.append(positive_[i])
+            third_day.append(negative_[i])
+        if i == 3:
+            fourth_day.append(datetime[i])
+            fourth_day.append(hloc_values[i])
+            fourth_day.append(positive_[i])
+            fourth_day.append(negative_[i])
+        if i == 4:
+            fifth_day.append(datetime[i])
+            fifth_day.append(hloc_values[i])
+            fifth_day.append(positive_[i])
+            fifth_day.append(negative_[i])
+        if i == 5:
+            sixth_day.append(datetime[i])
+            sixth_day.append(hloc_values[i])
+            sixth_day.append(positive_[i])
+            sixth_day.append(negative_[i])
+        if i == 6:
+            seventh_day.append(datetime[i])
+            seventh_day.append(hloc_values[i])
+            seventh_day.append(positive_[i])
+            seventh_day.append(negative_[i])
+    
     context = {
-        'positive': postiveChange[::-1],
-        'negative': negativeChange[::-1],
-        'DMT_values':DMT_values,
+        "datetime": datetime,
+        "hloc_values": hloc_values,
+        "positive": positive_,
+        "negative":negative_,
+        'first_day':first_day,
+        'second_day':second_day,
+        'third_day':third_day,
+        'fourth_day':fourth_day,
+        'fifth_day':fifth_day,
+        'sixth_day':sixth_day,
+        'seventh_day':seventh_day,
         'DMT_dates':DMT_dates,
-        'date':date,
+        'DMT_values':DMT_values,
     }
 
     return Response(context)
@@ -374,11 +508,18 @@ def ExponPrediction(request):
     endDate = serializer.data.get('endDate')
     graphValue = serializer.data.get('graphValue')
 
-    formula_data, r_squared, ticker_date, ticker_target = ExponRegressPrediction(ticker, graphValue, startDate, endDate)
+    # if request.method == "GET":
+    # ticker = request.GET.get('ticker')
+    # startDate = request.GET.get('startDate')
+    # endDate = request.GET.get('endDate')
+    # graphValue = request.GET.get('graphValue')
+
+    formula_data, r_squared, ticker_date, ticker_target, p = ExponRegressPrediction(ticker, graphValue, startDate, endDate)
 
     context = {
         'formula_data':formula_data,
         'r_squared':r_squared,
+        "formula":str(p),
         'ticker_date':ticker_date,
         'ticker_target':ticker_target,
     }
@@ -396,11 +537,19 @@ def LogPrediction(request):
     endDate = serializer.data.get('endDate')
     graphValue = serializer.data.get('graphValue')
 
-    formula_data, r_squared, ticker_date, ticker_target = LogPredictions(ticker, graphValue, startDate, endDate)
+    # if request.method == "GET":
+
+    #     ticker = request.GET.get('ticker')
+    #     startDate = request.GET.get('startDate')
+    #     endDate = request.GET.get('endDate')
+    #     graphValue = request.GET.get('graphValue')
+
+    formula_data, r_squared, ticker_date, ticker_target, p = LogPredictions(ticker, graphValue, startDate, endDate)
 
     context = {
         'formula_data':formula_data,
         'r_squared':r_squared,
+        "formula":str(p),
         'ticker_date':ticker_date,
         'ticker_target':ticker_target,
     }
@@ -420,11 +569,20 @@ def PolyPredictions(request):
     graphValue = serializer.data.get('graphValue')
     power = serializer.data.get('power')
 
-    formula_data, r_squared, ticker_date, ticker_target = polyPredictions(ticker, graphValue, startDate, endDate, power)
+    # if request.method == "GET":
+
+    #     ticker = request.GET.get('ticker')
+    #     startDate = request.GET.get('startDate')
+    #     endDate = request.GET.get('endDate')
+    #     graphValue = request.GET.get('graphValue')
+    #     power = request.GET.get('power')
+
+    formula_data, r_squared, ticker_date, ticker_target, p = polyPredictions(ticker, graphValue, startDate, endDate, power)
 
     context = {
         'formula_data':formula_data,
         'r_squared':r_squared,
+        "formula":str(p),
         'ticker_date':ticker_date,
         'ticker_target':ticker_target,
     }
