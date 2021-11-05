@@ -1,3 +1,4 @@
+from rest_framework.fields import set_value
 from PBSTAPP.serializers import BasePredSerializer, CorrelationSerializer, CountryExchangeSerializer, CountrySerializer, CryptoSerializer, DailyMatchtrendSerializer, ExchangeSerializer, ForexSerializer, IndexSerializer, SearchSerializer, StockSerializer, PowerPredSerializer, NameSearchSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -388,6 +389,7 @@ def DailyMatchTrend(request):
     if change_choice == 'pctChange':
         days = days + 1
         date, postiveChange, negativeChange = percentagechangev2(ticker, int(days), graphValue, int(pctChange))
+        date.pop()
         
         try:
             DMT_values, DMT_dates = PCTdailyMatchTrendSearch(ticker, negativeChange, postiveChange, graphValue)
@@ -398,12 +400,72 @@ def DailyMatchTrend(request):
     positive_ = postiveChange[::-1]
     negative_ = negativeChange[::-1]
 
+    datetime = []
+    hloc_values = []
+
+    for items in date:
+        datetime.append(items['datetime'])
+        hloc_values.append(items[graphValue])
+
+    first_day = []
+    second_day = []
+    third_day = []
+    fourth_day = []
+    fifth_day = []
+    sixth_day = []
+    seventh_day = []
+
+    for i in range(len(datetime)):
+        if i == 0:
+            first_day.append(datetime[i])
+            first_day.append(hloc_values[i])
+            first_day.append(positive_[i])
+            first_day.append(negative_[i])
+        if i == 1:
+            second_day.append(datetime[i])
+            second_day.append(hloc_values[i])
+            second_day.append(positive_[i])
+            second_day.append(negative_[i])
+        if i == 2:
+            third_day.append(datetime[i])
+            third_day.append(hloc_values[i])
+            third_day.append(positive_[i])
+            third_day.append(negative_[i])
+        if i == 3:
+            fourth_day.append(datetime[i])
+            fourth_day.append(hloc_values[i])
+            fourth_day.append(positive_[i])
+            fourth_day.append(negative_[i])
+        if i == 4:
+            fifth_day.append(datetime[i])
+            fifth_day.append(hloc_values[i])
+            fifth_day.append(positive_[i])
+            fifth_day.append(negative_[i])
+        if i == 5:
+            sixth_day.append(datetime[i])
+            sixth_day.append(hloc_values[i])
+            sixth_day.append(positive_[i])
+            sixth_day.append(negative_[i])
+        if i == 6:
+            seventh_day.append(datetime[i])
+            seventh_day.append(hloc_values[i])
+            seventh_day.append(positive_[i])
+            seventh_day.append(negative_[i])
+    
     context = {
-        'date':date,
-        'positive': positive_,
-        'negative': negative_,
+        "datetime": datetime,
+        "hloc_values": hloc_values,
+        "positive": positive_,
+        "negative":negative_,
+        'first_day':first_day,
+        'second_day':second_day,
+        'third_day':third_day,
+        'fourth_day':fourth_day,
+        'fifth_day':fifth_day,
+        'sixth_day':sixth_day,
+        'seventh_day':seventh_day,
         'DMT_dates':DMT_dates,
-        'DMT_values':DMT_values,        
+        'DMT_values':DMT_values,
     }
 
     return Response(context)
