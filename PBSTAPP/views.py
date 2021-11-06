@@ -403,17 +403,18 @@ def DailyMatchTrend(request):
     datetime = []
     hloc_values = []
 
+    """ MAIN ARRAY DATA """
     for items in date:
         datetime.append(items['datetime'])
         hloc_values.append(items[graphValue])
 
-    for dates in datetime:
-        for i in range(len(datetime)):
-            if i == 0:
-                main_array = [{'date':dates, 'hloc_values':hloc_values[i], 'positive':positive_[i], 'negative':negative_[i]}]
-            else:
-                main_array.append({'date':dates, 'hloc_values':hloc_values[i], 'positive':positive_[i], 'negative':negative_[i]})
+    for i in range(len(datetime)):
+        if i == 0:
+            main_array = [{'date':datetime[i], 'hloc_values':hloc_values[i], 'positive':positive_[i], 'negative':negative_[i]}]
+        else:
+            main_array.append({'date':datetime[i], 'hloc_values':hloc_values[i], 'positive':positive_[i], 'negative':negative_[i]})
     
+    """ DMT DATA """
     values = []
     ddates = []
 
