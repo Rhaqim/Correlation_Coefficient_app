@@ -418,17 +418,20 @@ def DailyMatchTrend(request):
     values = []
     ddates = []
 
-    for i, j in DMT_dates.items():
-        ddates.append(j)
+    try:
+        for i, j in DMT_dates.items():
+            ddates.append(j)
 
-    for l, m in DMT_values.items():
-        values.append(m)
+        for l, m in DMT_values.items():
+            values.append(m)
 
-    for i in range(len(ddates)):
-        if i == 0:
-            dmt_array = [{'DMTdate':ddates[i], 'DMTvalues':values[i]}]
-        else:
-            dmt_array.append({'DMTdate':ddates[i], 'DMTvalues':values[i]})
+        for i in range(len(ddates)):
+            if i == 0:
+                dmt_array = [{'DMTdate':ddates[i], 'DMTvalues':values[i]}]
+            else:
+                dmt_array.append({'DMTdate':ddates[i], 'DMTvalues':values[i]})
+    except AttributeError:
+        dmt_array = "Try a smaller number of days or a different Percentgae Change"
 
     context = {
         "MAIN_ARRAY": main_array,
