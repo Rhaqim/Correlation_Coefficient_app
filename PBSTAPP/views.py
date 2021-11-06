@@ -413,17 +413,21 @@ def DailyMatchTrend(request):
                 main_array = [{'date':dates, 'hloc_values':hloc_values[i], 'positive':positive_[i], 'negative':negative_[i]}]
             else:
                 main_array.append({'date':dates, 'hloc_values':hloc_values[i], 'positive':positive_[i], 'negative':negative_[i]})
+    
+    values = []
+    ddates = []
 
-    dmt_array = [DMT_dates, DMT_values]
+    for i, j in DMT_dates.items():
+        ddates.append(j)
 
-    # context = {
-    #     "datetime": datetime,
-    #     "hloc_values": hloc_values,
-    #     "positive": positive_,
-    #     "negative":negative_,
-    #     'DMT_dates':DMT_dates,
-    #     'DMT_values':DMT_values,
-    # }
+    for l, m in DMT_values.items():
+        values.append(m)
+
+    for i in range(len(ddates)):
+        if i == 0:
+            dmt_array = [{'DMTdate':ddates[i], 'DMTvalues':values[i]}]
+        else:
+            dmt_array.append({'DMTdate':ddates[i], 'DMTvalues':values[i]})
 
     context = {
         "MAIN_ARRAY": main_array,
