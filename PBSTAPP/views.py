@@ -407,65 +407,27 @@ def DailyMatchTrend(request):
         datetime.append(items['datetime'])
         hloc_values.append(items[graphValue])
 
-    first_day = []
-    second_day = []
-    third_day = []
-    fourth_day = []
-    fifth_day = []
-    sixth_day = []
-    seventh_day = []
+    for dates in datetime:
+        for i in range(len(datetime)):
+            if i == 0:
+                main_array = [{'date':dates, 'hloc_values':hloc_values[i], 'positive':positive_[i], 'negative':negative_[i]}]
+            else:
+                main_array.append({'date':dates, 'hloc_values':hloc_values[i], 'positive':positive_[i], 'negative':negative_[i]})
 
-    for i in range(len(datetime)):
-        if i == 0:
-            first_day.append(datetime[i])
-            first_day.append(hloc_values[i])
-            first_day.append(positive_[i])
-            first_day.append(negative_[i])
-        if i == 1:
-            second_day.append(datetime[i])
-            second_day.append(hloc_values[i])
-            second_day.append(positive_[i])
-            second_day.append(negative_[i])
-        if i == 2:
-            third_day.append(datetime[i])
-            third_day.append(hloc_values[i])
-            third_day.append(positive_[i])
-            third_day.append(negative_[i])
-        if i == 3:
-            fourth_day.append(datetime[i])
-            fourth_day.append(hloc_values[i])
-            fourth_day.append(positive_[i])
-            fourth_day.append(negative_[i])
-        if i == 4:
-            fifth_day.append(datetime[i])
-            fifth_day.append(hloc_values[i])
-            fifth_day.append(positive_[i])
-            fifth_day.append(negative_[i])
-        if i == 5:
-            sixth_day.append(datetime[i])
-            sixth_day.append(hloc_values[i])
-            sixth_day.append(positive_[i])
-            sixth_day.append(negative_[i])
-        if i == 6:
-            seventh_day.append(datetime[i])
-            seventh_day.append(hloc_values[i])
-            seventh_day.append(positive_[i])
-            seventh_day.append(negative_[i])
-    
+    dmt_array = [DMT_dates, DMT_values]
+
+    # context = {
+    #     "datetime": datetime,
+    #     "hloc_values": hloc_values,
+    #     "positive": positive_,
+    #     "negative":negative_,
+    #     'DMT_dates':DMT_dates,
+    #     'DMT_values':DMT_values,
+    # }
+
     context = {
-        "datetime": datetime,
-        "hloc_values": hloc_values,
-        "positive": positive_,
-        "negative":negative_,
-        'first_day':first_day,
-        'second_day':second_day,
-        'third_day':third_day,
-        'fourth_day':fourth_day,
-        'fifth_day':fifth_day,
-        'sixth_day':sixth_day,
-        'seventh_day':seventh_day,
-        'DMT_dates':DMT_dates,
-        'DMT_values':DMT_values,
+        "MAIN_ARRAY": main_array,
+        "DMT_ARRAY":dmt_array,
     }
 
     return Response(context)
